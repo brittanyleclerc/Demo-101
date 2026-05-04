@@ -1,24 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Portal</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background-color: #f4f4f9; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h1 { font-size: 1.5rem; color: #333; }
-        .link-button { display: block; background: #007bff; color: white; padding: 12px; margin: 10px 0; text-decoration: none; border-radius: 5px; text-align: center; font-weight: bold; }
-        .link-button:hover { background: #0056b3; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ottimate Training & Certification</title>
+<style>
+
+:root {
+  --navy: #0A2E4A;
+  --blue: #1565A0;
+  --teal: #00BCD4;
+  --teal-light: #E0F7FA;
+  --green: #27AE60;
+  --green-light: #D5F5E3;
+  --orange: #F39C12;
+  --orange-light: #FEF9E7;
+  --purple: #7B2D8B;
+  --purple-light: #F3E5F5;
+  --gray1: #F8F9FA;
+  --gray2: #E9ECEF;
+  --gray3: #ADB5BD;
+  --gray4: #6C757D;
+  --gray5: #343A40;
+  --white: #FFFFFF;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.18);
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--gray1);
+  color: var(--gray5);
+  min-height: 100vh;
+}
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(140deg, var(--navy) 0%, var(--blue) 55%, #1976D2 100%);
+  padding: 3.5rem 2rem 4.5rem;
+  text-align: center;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+
+.hero-logo {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+}
+.hero-logo span { color: var(--teal); }
+
+.hero-subtitle {
+  font-size: 1rem;
+  opacity: 0.75;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.hero-headline {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  opacity: 0.85;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── WAVE ── */
+.wave {
+  display: block;
+  width: 100%;
+  height: 50px;
+  margin-top: -1px;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  margin-top: -2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gray4);
+  margin-bottom: 1rem;
+  margin-top: 2.5rem;
+}
+
+/* ── TRACK CARDS ── */
+.tracks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+  .tracks { grid-template-columns: 1fr; }
+  .hero-headline { font-size: 1.5rem; }
+}
+
+.track-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+}
+.track-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+.track-card.fundamentals { border-color: var(--teal); }
+.track-card.demo { border-color: var(--purple); }
+
+.track-card-header {
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.track-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.fundamentals .track-icon { background: var(--teal-light); }
+.demo .track-icon { background: var(--purple-light); }
+
+.track-meta { flex: 1; }
+.track-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 0.4rem;
+}
+.fundamentals .track-badge { background: var(--teal-light); color: #00838F; }
+.demo .track-badge { background: var(--purple-light); color: var(--purple); }
+
+.track-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.3;
+}
+
+.track-body {
+  padding: 0 1.5rem 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-desc {
+  font-size: 0.88rem;
+  color: var(--gray4);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.track-modules {
+  list-style: none;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+.track-modules li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  color: var(--gray5);
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--gray1);
+}
+.track-modules li:last-child { border-bottom: none; }
+.module-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fundamentals .module-dot { background: var(--teal); }
+.demo .module-dot { background: var(--purple); }
+
+.track-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray2);
+  margin-top: auto;
+}
+.track-cert {
+  font-size: 0.78rem;
+  color: var(--gray4);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: filter 0.15s;
+  color: var(--white);
+}
+.btn-start:hover { filter: brightness(1.1); }
+.fundamentals .btn-start { background: var(--teal); }
+.demo .btn-start { background: var(--purple); }
+
+/* ── PROGRESS PILL ── */
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+/* ── INFO STRIP ── */
+.info-strip {
+  display: flex;
+  gap: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.info-strip-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+}
+.info-strip-item:not(:last-child) {
+  border-right: 1px solid var(--gray2);
+}
+.info-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.info-label {
+  font-size: 0.75rem;
+  color: var(--gray4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .info-strip { flex-wrap: wrap; }
+  .info-strip-item { min-width: 50%; }
+  .info-strip-item:not(:last-child) { border-right: none; border-bottom: 1px solid var(--gray2); }
+}
+
+/* ── BOTH PATHS CTA ── */
+.cta-both {
+  background: linear-gradient(135deg, var(--navy) 0%, #1565A0 100%);
+  border-radius: var(--radius);
+  padding: 1.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+}
+.cta-both-text h3 {
+  color: var(--white);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.cta-both-text p {
+  color: rgba(255,255,255,0.75);
+  font-size: 0.85rem;
+}
+.cta-both-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid rgba(255,255,255,0.4);
+  color: var(--white);
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.7); }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.8rem;
+  color: var(--gray3);
+}
+.footer strong { color: var(--gray4); }
+
+/* ── CERT BADGES (visual only) ── */
+.cert-previews {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.cert-badge {
+  flex: 1;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-sm);
+}
+.cert-badge.fund { background: linear-gradient(120deg, #E0F7FA, #B2EBF2); }
+.cert-badge.demo-c { background: linear-gradient(120deg, #F3E5F5, #E1BEE7); }
+.cert-icon { font-size: 1.6rem; }
+.cert-text strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--navy);
+  font-weight: 700;
+}
+.cert-text span {
+  font-size: 0.75rem;
+  color: var(--gray4);
+}
+
+@media (max-width: 480px) {
+  .cert-previews { flex-direction: column; }
+}
+
+</style>
 </head>
 <body>
-    <div class="card">
-        <h1>Ottimate Project Portal</h1>
-        <p>Select a module below:</p>
-        
-        <a href="./ottimate-training.html" class="link-button">Ottimate Training Module</a>
-        
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-logo">otti<span>mate</span></div>
+  <div class="hero-subtitle">Training &amp; Certification Portal</div>
+  <h1 class="hero-headline">Core AP + Statements<br>Learning Tracks</h1>
+  <p class="hero-desc">Master Ottimate's AP automation platform and earn your certifications. Choose your learning path below.</p>
+</div>
+
+<svg class="wave" viewBox="0 0 1440 50" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <path d="M0,0 C360,50 1080,50 1440,0 L1440,50 L0,50 Z" fill="#F8F9FA"/>
+</svg>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- Stats strip -->
+  <div class="info-strip">
+    <div class="info-strip-item">
+      <div class="info-num">7</div>
+      <div class="info-label">Total Modules</div>
+    </div>
+    <div class="info-strip-item">
+      <div class="info-num">2</div>
+      <div class="info-label">Certifications</div>
+    </div>
+    <div class="info-strip-item">
+      <div class="info-num">45</div>
+      <div class="info-label">Exam Questions</div>
+    </div>
+    <div class="info-strip-item">
+      <div class="info-num">Self-paced</div>
+      <div class="info-label">Format</div>
+    </div>
+  </div>
+
+  <!-- Track cards -->
+  <div class="section-label">Choose Your Learning Track</div>
+
+  <div class="tracks">
+
+    <!-- Fundamentals -->
+    <a class="track-card fundamentals" href="fundamentals-training.html">
+      <div class="track-card-header">
+        <div class="track-icon">📚</div>
+        <div class="track-meta">
+          <div class="track-badge">Track 1 · 4 Modules</div>
+          <div class="track-title">Ottimate Fundamentals</div>
         </div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Build a solid foundation in AP automation concepts, the Ottimate platform, industry verticals, and persona-based selling.</div>
+        <ul class="track-modules">
+          <li><span class="module-dot"></span>Accounting Fundamentals</li>
+          <li><span class="module-dot"></span>Meet Ottimate</li>
+          <li><span class="module-dot"></span>Industry Verticals</li>
+          <li><span class="module-dot"></span>Persona-Based Selling</li>
+        </ul>
+        <div class="track-footer">
+          <div class="track-cert">🏅 20-question final exam</div>
+          <span class="btn-start fundamentals">Start →</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Demo -->
+    <a class="track-card demo" href="demo-training.html">
+      <div class="track-card-header">
+        <div class="track-icon">🎬</div>
+        <div class="track-meta">
+          <div class="track-badge">Track 2 · 3 Modules</div>
+          <div class="track-title">Core AP + Statements Demo</div>
+        </div>
+      </div>
+      <div class="track-body">
+        <div class="track-desc">Master the AI-powered core product, demo delivery skills, and a step-by-step interactive walkthrough of the full Ottimate demo flow.</div>
+        <ul class="track-modules">
+          <li><span class="module-dot"></span>AI &amp; Core Product</li>
+          <li><span class="module-dot"></span>Demo Mastery</li>
+          <li><span class="module-dot"></span>Demo Script &amp; Walkthrough</li>
+        </ul>
+        <div class="track-footer">
+          <div class="track-cert">🏅 25-question final exam</div>
+          <span class="btn-start demo">Start →</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Certifications preview -->
+  <div class="section-label">Certifications Earned</div>
+  <div class="cert-previews">
+    <div class="cert-badge fund">
+      <div class="cert-icon">🎓</div>
+      <div class="cert-text">
+        <strong>Ottimate Certified — Fundamentals</strong>
+        <span>Awarded on passing the Track 1 final exam</span>
+      </div>
+    </div>
+    <div class="cert-badge demo-c">
+      <div class="cert-icon">🎓</div>
+      <div class="cert-text">
+        <strong>Ottimate Certified — Core AP + Statements</strong>
+        <span>Awarded on passing the Track 2 final exam</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Both paths CTA -->
+  <div class="section-label">Complete Both Tracks</div>
+  <div class="cta-both">
+    <div class="cta-both-text">
+      <h3>Become fully certified across all 7 modules</h3>
+      <p>Complete both tracks to earn both certifications and demonstrate end-to-end expertise.</p>
+    </div>
+    <div class="cta-both-links">
+      <a class="btn-outline" href="fundamentals-training.html">📚 Fundamentals →</a>
+      <a class="btn-outline" href="demo-training.html">🎬 Demo Training →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <strong>Ottimate Training Portal</strong> &nbsp;·&nbsp; Core AP + Statements &nbsp;·&nbsp; All progress is saved locally in your browser
+</div>
+
 </body>
 </html>
