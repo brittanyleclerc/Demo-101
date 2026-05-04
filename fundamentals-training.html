@@ -973,6 +973,7 @@ function startTraining() {
   if (APP.verticals.length === 0) { alert('Please select at least one vertical.'); return; }
   APP.name = name;
   APP.certDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  saveState(); // persist name/role/verticals so returning users skip welcome screen
   const welcome = document.getElementById('screen-welcome');
   welcome.style.transition = 'opacity 0.3s ease';
   welcome.style.opacity = '0';
@@ -982,13 +983,14 @@ function startTraining() {
     welcome.style.transition = '';
     const shell = document.getElementById('app-shell');
     shell.classList.add('active');
+    document.getElementById('header-username').textContent = name;
+    updateProgress();
+    showDashboard();
+    // fade in after content is rendered
     shell.style.opacity = '0';
     shell.style.transition = 'opacity 0.3s ease';
     requestAnimationFrame(() => { requestAnimationFrame(() => { shell.style.opacity = '1'; }); });
     setTimeout(() => { shell.style.opacity = ''; shell.style.transition = ''; }, 350);
-    document.getElementById('header-username').textContent = name;
-    updateProgress();
-    showDashboard();
   }, 300);
 }
 
@@ -2453,7 +2455,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Load state from localStorage
+// Load state from localStorage — restore full session if available
 (function() {
   try {
     const saved = localStorage.getItem('ottimate_fundamentals_state');
@@ -2461,6 +2463,21 @@ document.addEventListener('click', function(e) {
       const s = JSON.parse(saved);
       if (s.modulesDone) s.modulesDone.forEach(m => APP.modulesDone.add(m));
       if (s.quizScores) APP.quizScores = s.quizScores;
+      // Restore identity so returning users skip the welcome screen
+      if (s.name && s.role && s.verticals && s.verticals.length > 0) {
+        APP.name = s.name;
+        APP.role = s.role;
+        APP.verticals = s.verticals;
+        APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('screen-welcome').classList.remove('active');
+          const shell = document.getElementById('app-shell');
+          shell.classList.add('active');
+          document.getElementById('header-username').textContent = APP.name;
+          updateProgress();
+          showDashboard();
+        });
+      }
     }
   } catch(e) {}
 })();
@@ -2469,6 +2486,10 @@ document.addEventListener('click', function(e) {
 function saveState() {
   try {
     localStorage.setItem('ottimate_fundamentals_state', JSON.stringify({
+      name: APP.name,
+      role: APP.role,
+      verticals: APP.verticals,
+      certDate: APP.certDate,
       modulesDone: Array.from(APP.modulesDone),
       quizScores: APP.quizScores
     }));
