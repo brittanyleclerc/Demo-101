@@ -1732,6 +1732,38 @@ function renderM3() {
 }
 
 function renderRef() {
+  // Build verticals HTML before the template literal to avoid IIFE-in-template issues
+  var _verts = (APP.verticals && APP.verticals.length > 0) ? APP.verticals : Object.keys(VERTICAL_DATA);
+  var _refVertTabBtns = _verts.map(function(v, i) {
+    var label = (VERTICAL_DATA[v] ? VERTICAL_DATA[v].label : v);
+    return '<button class="vtab ' + (i===0?'active':'') + '" onclick="switchRefVTab(this,\'refv-\',\'' + v + '\')">' + label + '</button>';
+  }).join('');
+  var _refVertPanels = _verts.map(function(v, i) {
+    var d = VERTICAL_DATA[v];
+    if (!d) return '';
+    var challengeItems = d.challenges.map(function(c){ return '<li>' + c + '</li>'; }).join('');
+    var solutionItems = d.solution.map(function(s){ return '<li>' + s + '</li>'; }).join('');
+    return '<div class="vcontent ' + (i===0?'active':'') + '" id="refv-' + v + '">' +
+      '<div class="card">' +
+        '<div class="card-title">' + d.label + ' — ' + d.headline + '</div>' +
+        '<p class="body-text">' + d.intro + '</p>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">' +
+          '<div><h3 class="section-h3">🔴 Key Pain Points</h3><ul class="content-list">' + challengeItems + '</ul></div>' +
+          '<div><h3 class="section-h3">✅ How Ottimate Solves It</h3><ul class="content-list">' + solutionItems + '</ul></div>' +
+        '</div>' +
+        '<div class="info-box" style="margin-top:0.75rem;"><div class="info-box-title">🎯 Ideal Customer Profile</div>' + d.icp + '</div>' +
+        '<div class="info-box win" style="margin-top:0.75rem;"><div class="info-box-title">💬 Customer Voice</div>' + d.quote + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  var refVerticalsHTML =
+    '<div class="card" style="background:var(--teal-light);border:2px solid var(--teal);margin-bottom:1rem;">' +
+      '<div class="info-box-title" style="color:#00838F;margin-bottom:0.25rem;">🗂️ Your Selected Verticals</div>' +
+      '<p style="font-size:0.85rem;color:var(--gray4);">These vertical overviews are tailored to the industries you selected during onboarding. Use them to prepare for industry-specific conversations and demos.</p>' +
+    '</div>' +
+    '<div class="vertical-tabs" style="margin-bottom:1rem;">' + _refVertTabBtns + '</div>' +
+    _refVertPanels;
+
   document.getElementById('main-area').innerHTML = `
     <button class="back-link" onclick="showDashboard()">← Dashboard</button>
     <div class="page-hero">
@@ -1913,41 +1945,7 @@ function renderRef() {
     <!-- BATTLECARDS -->
     <!-- INDUSTRY VERTICALS REFERENCE -->
     <div class="ref-panel" id="ref-verticals">
-      ${(function() {
-        const verts = APP.verticals && APP.verticals.length > 0 ? APP.verticals : Object.keys(VERTICAL_DATA);
-        const tabBtns = verts.map((v, i) =>
-          `<button class="vtab ${i===0?'active':''}" onclick="switchRefVTab(this,'refv-','${v}')">${VERTICAL_DATA[v] ? VERTICAL_DATA[v].label : v}</button>`
-        ).join('');
-        const panels = verts.map((v, i) => {
-          const d = VERTICAL_DATA[v];
-          if (!d) return '';
-          return `<div class="vcontent ${i===0?'active':''}" id="refv-${v}">
-            <div class="card">
-              <div class="card-title">${d.label} — ${d.headline}</div>
-              <p class="body-text">${d.intro}</p>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
-                <div>
-                  <h3 class="section-h3">🔴 Key Pain Points</h3>
-                  <ul class="content-list">${d.challenges.map(c=>`<li>${c}</li>`).join('')}</ul>
-                </div>
-                <div>
-                  <h3 class="section-h3">✅ How Ottimate Solves It</h3>
-                  <ul class="content-list">${d.solution.map(s=>`<li>${s}</li>`).join('')}</ul>
-                </div>
-              </div>
-              <div class="info-box" style="margin-top:0.75rem;"><div class="info-box-title">🎯 Ideal Customer Profile</div>${d.icp}</div>
-              <div class="info-box win" style="margin-top:0.75rem;"><div class="info-box-title">💬 Customer Voice</div>${d.quote}</div>
-            </div>
-          </div>`;
-        }).join('');
-        return `
-          <div class="card" style="background:var(--teal-light);border:2px solid var(--teal);margin-bottom:1rem;">
-            <div class="info-box-title" style="color:#00838F;margin-bottom:0.25rem;">🗂️ Your Selected Verticals</div>
-            <p style="font-size:0.85rem;color:var(--gray4);">These vertical overviews are tailored to the industries you selected during onboarding. Use them to prepare for industry-specific conversations and demos.</p>
-          </div>
-          <div class="vertical-tabs" style="margin-bottom:1rem;">${tabBtns}</div>
-          ${panels}`;
-      })()}
+      ${refVerticalsHTML}
     </div>
 
     <div class="ref-panel" id="ref-battlecards">
@@ -2218,4 +2216,47 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Load state from localStorage — restor
+// Load state from localStorage — restore full session if available
+(function() {
+  try {
+    const saved = localStorage.getItem('ottimate_demo_state');
+    if (saved) {
+      const s = JSON.parse(saved);
+      if (s.modulesDone) s.modulesDone.forEach(m => APP.modulesDone.add(m));
+      if (s.quizScores) APP.quizScores = s.quizScores;
+      // Restore identity so returning users skip the welcome screen
+      if (s.name && s.role && s.verticals && s.verticals.length > 0) {
+        APP.name = s.name;
+        APP.role = s.role;
+        APP.verticals = s.verticals;
+        APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        // Script is at end of body — DOM is already ready, run directly
+        setTimeout(function() {
+          document.getElementById('screen-welcome').classList.remove('active');
+          const shell = document.getElementById('app-shell');
+          shell.classList.add('active');
+          document.getElementById('header-username').textContent = APP.name;
+          updateProgress();
+          showDashboard();
+        }, 0);
+      }
+    }
+  } catch(e) {}
+})();
+
+function saveState() {
+  try {
+    localStorage.setItem('ottimate_demo_state', JSON.stringify({
+      name: APP.name,
+      role: APP.role,
+      verticals: APP.verticals,
+      certDate: APP.certDate,
+      modulesDone: Array.from(APP.modulesDone),
+      quizScores: APP.quizScores
+    }));
+  } catch(e) {}
+}
+
+</script>
+</body>
+</html>
