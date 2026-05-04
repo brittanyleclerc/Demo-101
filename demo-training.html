@@ -970,6 +970,7 @@ function startTraining() {
   if (APP.verticals.length === 0) { alert('Please select at least one vertical.'); return; }
   APP.name = name;
   APP.certDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  saveState(); // persist name/role/verticals so returning users skip welcome screen
   const welcome = document.getElementById('screen-welcome');
   welcome.style.transition = 'opacity 0.3s ease';
   welcome.style.opacity = '0';
@@ -979,13 +980,14 @@ function startTraining() {
     welcome.style.transition = '';
     const shell = document.getElementById('app-shell');
     shell.classList.add('active');
+    document.getElementById('header-username').textContent = name;
+    updateProgress();
+    showDashboard();
+    // fade in after content is rendered
     shell.style.opacity = '0';
     shell.style.transition = 'opacity 0.3s ease';
     requestAnimationFrame(() => { requestAnimationFrame(() => { shell.style.opacity = '1'; }); });
     setTimeout(() => { shell.style.opacity = ''; shell.style.transition = ''; }, 350);
-    document.getElementById('header-username').textContent = name;
-    updateProgress();
-    showDashboard();
   }, 300);
 }
 
@@ -1702,6 +1704,7 @@ function renderRef() {
       <button class="ref-tab active" onclick="switchRefTab(this,'ref-cheat')">📝 Quick Reference</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-discovery')">🔍 Discovery Questions</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-objections')">🛡️ Objection Handler</button>
+      <button class="ref-tab" onclick="switchRefTab(this,'ref-verticals')">🗂️ Industry Verticals</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-battlecards')">⚔️ Battlecards</button>
     </div>
 
@@ -1870,6 +1873,45 @@ function renderRef() {
     </div>
 
     <!-- BATTLECARDS -->
+    <!-- INDUSTRY VERTICALS REFERENCE -->
+    <div class="ref-panel" id="ref-verticals">
+      ${(function() {
+        const verts = APP.verticals && APP.verticals.length > 0 ? APP.verticals : Object.keys(VERTICAL_DATA);
+        const tabBtns = verts.map((v, i) =>
+          `<button class="vtab ${i===0?'active':''}" onclick="switchRefVTab(this,'refv-','${v}')">${VERTICAL_DATA[v] ? VERTICAL_DATA[v].label : v}</button>`
+        ).join('');
+        const panels = verts.map((v, i) => {
+          const d = VERTICAL_DATA[v];
+          if (!d) return '';
+          return `<div class="vcontent ${i===0?'active':''}" id="refv-${v}">
+            <div class="card">
+              <div class="card-title">${d.label} — ${d.headline}</div>
+              <p class="body-text">${d.intro}</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
+                <div>
+                  <h3 class="section-h3">🔴 Key Pain Points</h3>
+                  <ul class="content-list">${d.challenges.map(c=>`<li>${c}</li>`).join('')}</ul>
+                </div>
+                <div>
+                  <h3 class="section-h3">✅ How Ottimate Solves It</h3>
+                  <ul class="content-list">${d.solution.map(s=>`<li>${s}</li>`).join('')}</ul>
+                </div>
+              </div>
+              <div class="info-box" style="margin-top:0.75rem;"><div class="info-box-title">🎯 Ideal Customer Profile</div>${d.icp}</div>
+              <div class="info-box win" style="margin-top:0.75rem;"><div class="info-box-title">💬 Customer Voice</div>${d.quote}</div>
+            </div>
+          </div>`;
+        }).join('');
+        return `
+          <div class="card" style="background:var(--teal-light);border:2px solid var(--teal);margin-bottom:1rem;">
+            <div class="info-box-title" style="color:#00838F;margin-bottom:0.25rem;">🗂️ Your Selected Verticals</div>
+            <p style="font-size:0.85rem;color:var(--gray4);">These vertical overviews are tailored to the industries you selected during onboarding. Use them to prepare for industry-specific conversations and demos.</p>
+          </div>
+          <div class="vertical-tabs" style="margin-bottom:1rem;">${tabBtns}</div>
+          ${panels}`;
+      })()}
+    </div>
+
     <div class="ref-panel" id="ref-battlecards">
       <div class="card" style="background:#FFF3CD;border:2px solid var(--orange);">
         <div class="info-box-title" style="color:var(--orange);">⚠️ Internal Use Only — Verify Before Using in Customer Conversations</div>
@@ -2025,6 +2067,14 @@ function switchRefTab(btn, panelId) {
   document.getElementById(panelId).classList.add('active');
 }
 
+function switchRefVTab(btn, prefix, vKey) {
+  btn.closest('.vertical-tabs').querySelectorAll('.vtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => {
+    el.classList.toggle('active', el.id === prefix + vKey);
+  });
+}
+
 
 const EXAM_QUESTIONS = [
   { q:"What are the four primary invoice capture methods in Ottimate?", options:["Phone, Fax, Text, and physical Mail","Email, Direct Upload, Mobile App, and EDI","Manual entry, CSV import, API, and Slack","QR Code, Bluetooth, Voice Command, and Scan-to-Cloud"], correct:1, cat:"AI & Core Product" },
@@ -2130,6 +2180,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// Load state from localStorage — restore full session if available
 (function() {
   try {
     const saved = localStorage.getItem('ottimate_demo_state');
@@ -2137,6 +2188,21 @@ document.addEventListener('click', function(e) {
       const s = JSON.parse(saved);
       if (s.modulesDone) s.modulesDone.forEach(m => APP.modulesDone.add(m));
       if (s.quizScores) APP.quizScores = s.quizScores;
+      // Restore identity so returning users skip the welcome screen
+      if (s.name && s.role && s.verticals && s.verticals.length > 0) {
+        APP.name = s.name;
+        APP.role = s.role;
+        APP.verticals = s.verticals;
+        APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('screen-welcome').classList.remove('active');
+          const shell = document.getElementById('app-shell');
+          shell.classList.add('active');
+          document.getElementById('header-username').textContent = APP.name;
+          updateProgress();
+          showDashboard();
+        });
+      }
     }
   } catch(e) {}
 })();
@@ -2144,6 +2210,10 @@ document.addEventListener('click', function(e) {
 function saveState() {
   try {
     localStorage.setItem('ottimate_demo_state', JSON.stringify({
+      name: APP.name,
+      role: APP.role,
+      verticals: APP.verticals,
+      certDate: APP.certDate,
       modulesDone: Array.from(APP.modulesDone),
       quizScores: APP.quizScores
     }));
