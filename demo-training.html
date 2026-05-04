@@ -1134,11 +1134,11 @@ function buildTabNav(prefix, idx, total) {
   const isFirst = idx === 0;
   const isLast  = idx === total - 1;
   const prev = isFirst
-    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>← Previous</button>`
-    : `<button class="btn btn-secondary" onclick="navTab('${prefix}',${idx-1})">← Previous</button>`;
+    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>← Previous Section</button>`
+    : `<button class="btn btn-secondary" onclick="navTab('${prefix}',${idx-1})">← Previous Section</button>`;
   const next = isLast
-    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>Next →</button>`
-    : `<button class="btn btn-primary" onclick="navTab('${prefix}',${idx+1})">Next →</button>`;
+    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>Next Section →</button>`
+    : `<button class="btn btn-primary" onclick="navTab('${prefix}',${idx+1})">Next Section →</button>`;
   const label = isLast ? "✏️ You've reached the Quiz" : `Section ${idx + 1} of ${total}`;
   return `<div class="tab-nav-bar">${prev}<span class="tab-nav-label">${label}</span>${next}</div>`;
 }
