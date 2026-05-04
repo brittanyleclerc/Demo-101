@@ -331,6 +331,22 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+/* ── TAB NAVIGATION BAR ── */
+.tab-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 0 0.5rem;
+  margin-top: 2rem;
+  border-top: 2px solid var(--gray2);
+}
+.tab-nav-label {
+  font-size: 0.8rem;
+  color: var(--gray4);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 /* ── INFO BOXES ── */
 .info-box {
   border-left: 4px solid var(--teal);
@@ -1113,6 +1129,25 @@ function switchTab(prefix, idx, btn) {
 }
 
 
+// ── TAB NAV HELPERS ────────────────────────────────────────
+function buildTabNav(prefix, idx, total) {
+  const isFirst = idx === 0;
+  const isLast  = idx === total - 1;
+  const prev = isFirst
+    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>← Previous</button>`
+    : `<button class="btn btn-secondary" onclick="navTab('${prefix}',${idx-1})">← Previous</button>`;
+  const next = isLast
+    ? `<button class="btn btn-secondary" style="opacity:0.35;cursor:default;" disabled>Next →</button>`
+    : `<button class="btn btn-primary" onclick="navTab('${prefix}',${idx+1})">Next →</button>`;
+  const label = isLast ? "✏️ You've reached the Quiz" : `Section ${idx + 1} of ${total}`;
+  return `<div class="tab-nav-bar">${prev}<span class="tab-nav-label">${label}</span>${next}</div>`;
+}
+
+function navTab(prefix, idx) {
+  const btn = document.querySelectorAll('.module-tabs .module-tab')[idx];
+  if (btn) { switchTab(prefix, idx, btn); scrollToTop(); }
+}
+
 function moduleShell(num, subtitle, tabDefs, contentHTML, quizData) {
   const m = MODULE_META[num];
   const allTabs = [...tabDefs, '✏️ Quiz'];
@@ -1121,8 +1156,9 @@ function moduleShell(num, subtitle, tabDefs, contentHTML, quizData) {
   ).join('');
   const quizTabContent = buildInlineQuiz(num, quizData || QUIZ_DATA[num]);
   const allContent = [...contentHTML, quizTabContent];
+  const _navTotal = allContent.length;
   const tabs = allContent.map((c, i) =>
-    `<div class="tab-content ${i===0?'active':''}" id="mtab-${num}-${i}">${c}</div>`
+    `<div class="tab-content ${i===0?'active':''}" id="mtab-${num}-${i}">${c}${buildTabNav('mtab-'+num, i, _navTotal)}</div>`
   ).join('');
   document.getElementById('main-area').innerHTML = `
     <button class="back-link" onclick="showDashboard()">← Dashboard</button>
@@ -1677,8 +1713,9 @@ function renderM3() {
   
   const quizTabContent = buildInlineQuiz(3, quizData);
   const allContent = [...content, quizTabContent];
+  const _navTotal3 = allContent.length;
   const tabsHTML = allContent.map((c, i) =>
-    `<div class="tab-content ${i===0?'active':''}" id="mtab-3-${i}">${c}</div>`
+    `<div class="tab-content ${i===0?'active':''}" id="mtab-3-${i}">${c}${buildTabNav('mtab-3', i, _navTotal3)}</div>`
   ).join('');
   
   document.getElementById('main-area').innerHTML = `
@@ -2181,47 +2218,4 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Load state from localStorage — restore full session if available
-(function() {
-  try {
-    const saved = localStorage.getItem('ottimate_demo_state');
-    if (saved) {
-      const s = JSON.parse(saved);
-      if (s.modulesDone) s.modulesDone.forEach(m => APP.modulesDone.add(m));
-      if (s.quizScores) APP.quizScores = s.quizScores;
-      // Restore identity so returning users skip the welcome screen
-      if (s.name && s.role && s.verticals && s.verticals.length > 0) {
-        APP.name = s.name;
-        APP.role = s.role;
-        APP.verticals = s.verticals;
-        APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        // Script is at end of body — DOM is already ready, run directly
-        setTimeout(function() {
-          document.getElementById('screen-welcome').classList.remove('active');
-          const shell = document.getElementById('app-shell');
-          shell.classList.add('active');
-          document.getElementById('header-username').textContent = APP.name;
-          updateProgress();
-          showDashboard();
-        }, 0);
-      }
-    }
-  } catch(e) {}
-})();
-
-function saveState() {
-  try {
-    localStorage.setItem('ottimate_demo_state', JSON.stringify({
-      name: APP.name,
-      role: APP.role,
-      verticals: APP.verticals,
-      certDate: APP.certDate,
-      modulesDone: Array.from(APP.modulesDone),
-      quizScores: APP.quizScores
-    }));
-  } catch(e) {}
-}
-
-</script>
-</body>
-</html>
+// Load state from localStorage — restor
