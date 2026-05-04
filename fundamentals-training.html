@@ -1027,6 +1027,7 @@ function updateProgress() {
   const pct = Math.round((APP.modulesDone.size / 4) * 100);
   document.getElementById('header-progress-fill').style.width = pct + '%';
   document.getElementById('header-pct').textContent = pct + '%';
+  saveState();
 }
 
 const MODULE_NAMES = {
@@ -2469,14 +2470,15 @@ document.addEventListener('click', function(e) {
         APP.role = s.role;
         APP.verticals = s.verticals;
         APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        document.addEventListener('DOMContentLoaded', function() {
+        // Script is at end of body — DOM is already ready, run directly
+        setTimeout(function() {
           document.getElementById('screen-welcome').classList.remove('active');
           const shell = document.getElementById('app-shell');
           shell.classList.add('active');
           document.getElementById('header-username').textContent = APP.name;
           updateProgress();
           showDashboard();
-        });
+        }, 0);
       }
     }
   } catch(e) {}
@@ -2496,8 +2498,6 @@ function saveState() {
   } catch(e) {}
 }
 
-const _origUpdateProgress = updateProgress;
-function updateProgress() { _origUpdateProgress(); saveState(); }
 </script>
 </body>
 </html>
