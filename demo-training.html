@@ -850,6 +850,20 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
 .exam-opt.correct-ans { border-color:var(--green); background:var(--green-light); }
 .exam-opt.wrong-ans { border-color:var(--red); background:var(--red-light); }
 @media (max-width: 640px) { .step-body { flex-direction:column !important; } .step-screenshot { flex: 0 0 100% !important; min-width:unset !important; } }
+/* ── EDIT VERTICALS MODAL ───────────────────────────── */
+.ev-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;align-items:center;justify-content:center; }
+.ev-overlay.open { display:flex; }
+.ev-modal { background:white;border-radius:14px;padding:2rem;max-width:520px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.22);position:relative; }
+.ev-modal h2 { font-size:1.15rem;font-weight:800;color:var(--navy);margin:0 0 0.35rem; }
+.ev-modal p { font-size:0.85rem;color:var(--gray4);margin:0 0 1.25rem; }
+.ev-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1.5rem; }
+.ev-check { display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.85rem;border:2px solid var(--gray2);border-radius:8px;cursor:pointer;transition:border-color 0.15s,background 0.15s;font-size:0.88rem;font-weight:600;color:var(--navy); }
+.ev-check input { accent-color:var(--teal);width:16px;height:16px;cursor:pointer;flex-shrink:0; }
+.ev-check:has(input:checked) { border-color:var(--teal);background:var(--teal-light); }
+.ev-note { font-size:0.78rem;color:var(--orange);font-weight:600;margin-bottom:1.25rem;display:none; }
+.ev-note.visible { display:block; }
+.ev-footer { display:flex;gap:0.75rem;justify-content:flex-end; }
+.ev-btn-link { background:none;border:none;color:var(--teal);font-weight:700;font-size:0.88rem;cursor:pointer;padding:0;text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -923,6 +937,20 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
   </div>
 </div>
 
+<!-- EDIT VERTICALS MODAL -->
+<div class="ev-overlay" id="ev-overlay" onclick="if(event.target===this)closeEditVerticals()">
+  <div class="ev-modal">
+    <h2>✏️ Edit Your Verticals</h2>
+    <p>Select the industry verticals you want included in your training. Changes will update the Industry Verticals reference tab and all related content immediately.</p>
+    <div class="ev-note" id="ev-note">⚠️ Please select at least one vertical.</div>
+    <div class="ev-grid" id="ev-grid"></div>
+    <div class="ev-footer">
+      <button class="btn btn-secondary" onclick="closeEditVerticals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditedVerticals()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <div id="screen-certificate">
   <div class="certificate" id="certificate-inner">
     <div class="cert-logo">Ottim<span>ate</span></div>
@@ -935,6 +963,7 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
       demonstrating proficiency in AP automation product knowledge, demo techniques,
       and the complete Core AP + Statements demo script.
     </div>
+    <div id="cert-verticals" style="margin:0.6rem auto 0.4rem;font-size:0.82rem;color:#555;max-width:420px;"></div>
     <div class="cert-score-badge" id="cert-score">Final Exam Score: —</div>
     <div class="cert-footer">
       <div class="cert-sig">
@@ -956,6 +985,7 @@ const APP = {
   name: '',
   role: '',
   verticals: [],
+  certVerticals: [],
   modulesDone: new Set(),
   quizScores: {},
   examScore: null,
@@ -1089,7 +1119,7 @@ function renderDashboard() {
     </div>
     <div class="page-hero">
       <h1>Welcome back, ${APP.name}! 👋</h1>
-      <p>Role: ${APP.role} &nbsp;|&nbsp; Verticals: ${vertList}</p>
+      <p>Role: ${APP.role} &nbsp;|&nbsp; Verticals: ${vertList} &nbsp;<button class="ev-btn-link" onclick="openEditVerticals()">✏️ Edit</button></p>
     </div>
     <div class="card mb-2">
       <div class="flex items-center justify-between mb-1">
@@ -2066,6 +2096,8 @@ function submitExam() {
   const passed = pct >= 80;
   APP.examScore = score;
   APP.examPassed = passed;
+  if (passed) APP.certVerticals = APP.verticals.slice(); // snapshot verticals at time of passing
+  saveState();
   const resultBanner = document.createElement('div');
   resultBanner.style.cssText = 'position:sticky;top:58px;z-index:100;padding:1rem 2rem;text-align:center;font-weight:700;font-size:1.05rem;';
   resultBanner.style.background = passed ? 'var(--green)' : 'var(--red)';
@@ -2085,6 +2117,11 @@ function showCertificate() {
   document.getElementById('cert-name').textContent = APP.name;
   document.getElementById('cert-score').textContent = `Final Exam Score: ${APP.examScore}/25 (${pct}%)`;
   document.getElementById('cert-date').textContent = 'Issued: ' + APP.certDate;
+  // Show verticals trained on (snapshotted at time of passing)
+  const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
+  const vertLabels = certVerts.map(function(v) { return VERTICAL_LABELS[v] || v; }).join(' · ');
+  document.getElementById('cert-verticals').innerHTML =
+    '<span style="font-weight:600;color:#333;">Industry Verticals Trained:</span> ' + vertLabels;
   const certScreen = document.getElementById('screen-certificate');
   certScreen.classList.add('active');
   certScreen.scrollTop = 0;
@@ -2229,6 +2266,7 @@ document.addEventListener('click', function(e) {
         APP.name = s.name;
         APP.role = s.role;
         APP.verticals = s.verticals;
+        if (s.certVerticals) APP.certVerticals = s.certVerticals;
         APP.certDate = s.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         // Script is at end of body — DOM is already ready, run directly
         setTimeout(function() {
@@ -2244,12 +2282,50 @@ document.addEventListener('click', function(e) {
   } catch(e) {}
 })();
 
+// ── EDIT VERTICALS ────────────────────────────────────
+function openEditVerticals() {
+  const allKeys = Object.keys(VERTICAL_DATA);
+  const grid = document.getElementById('ev-grid');
+  grid.innerHTML = allKeys.map(k =>
+    '<label class="ev-check">' +
+      '<input type="checkbox" value="' + k + '"' + (APP.verticals.includes(k) ? ' checked' : '') + '>' +
+      (VERTICAL_DATA[k] ? VERTICAL_DATA[k].label : k) +
+    '</label>'
+  ).join('');
+  document.getElementById('ev-note').classList.remove('visible');
+  document.getElementById('ev-overlay').classList.add('open');
+}
+
+function closeEditVerticals() {
+  document.getElementById('ev-overlay').classList.remove('open');
+}
+
+function saveEditedVerticals() {
+  const checked = Array.from(document.querySelectorAll('#ev-grid input:checked')).map(el => el.value);
+  if (checked.length === 0) {
+    document.getElementById('ev-note').classList.add('visible');
+    return;
+  }
+  APP.verticals = checked;
+  saveState();
+  closeEditVerticals();
+  // Re-render the dashboard so the verticals line updates
+  showDashboard();
+  // Brief banner to confirm the update
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--teal);color:white;padding:0.65rem 1.5rem;border-radius:8px;font-weight:700;font-size:0.9rem;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.18);';
+  banner.textContent = '✅ Verticals updated — Reference Materials will reflect your new selection.';
+  document.body.appendChild(banner);
+  setTimeout(function(){ banner.remove(); }, 4000);
+}
+
 function saveState() {
   try {
     localStorage.setItem('ottimate_demo_state', JSON.stringify({
       name: APP.name,
       role: APP.role,
       verticals: APP.verticals,
+      certVerticals: APP.certVerticals,
       certDate: APP.certDate,
       modulesDone: Array.from(APP.modulesDone),
       quizScores: APP.quizScores
