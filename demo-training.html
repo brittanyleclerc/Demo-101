@@ -2245,6 +2245,12 @@ const VERTICAL_LABELS = {
 
 
 
+function toggleObj(el) {
+  el.classList.toggle('open');
+  const ans = el.nextElementSibling;
+  if (ans && ans.classList.contains('obj-a')) ans.classList.toggle('open');
+}
+
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('obj-q')) {
     e.target.classList.toggle('open');
