@@ -1714,11 +1714,6 @@ function renderM2() {
   moduleShell(2, 'Discovery, demo flow, objection handling, and the talk tracks that close deals.', tabs, content, QUIZ_DATA[2]);
 }
 
-function toggleObj(el) {
-  el.classList.toggle('open');
-  el.nextElementSibling.classList.toggle('open');
-}
-
 // ══════════════════════════════════════════════════════════
 // MODULE 6 — PERSONA-BASED SELLING
 // ══════════════════════════════════════════════════════════
@@ -2250,14 +2245,6 @@ function toggleObj(el) {
   const ans = el.nextElementSibling;
   if (ans && ans.classList.contains('obj-a')) ans.classList.toggle('open');
 }
-
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('obj-q')) {
-    e.target.classList.toggle('open');
-    const ans = e.target.nextElementSibling;
-    if (ans && ans.classList.contains('obj-a')) ans.classList.toggle('open');
-  }
-});
 
 // Load state from localStorage — restore full session if available
 (function() {
