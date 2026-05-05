@@ -2257,50 +2257,62 @@ const EXAM_QUESTIONS_BASE = [
 ];
 
 // Per-vertical question pool (2 questions each) — exam draws from selected verticals only
+// 3 questions per vertical — ensures enough depth to always fill 5 slots even with 2 verticals selected
 const VERTICAL_EXAM_POOL = {
   restaurants: [
     { q:"For a multi-unit restaurant group, what Ottimate capability provides the most strategic value?", options:["Mobile invoice capture only","Consolidated spend visibility across all locations","Single-vendor pricing templates","Individual location P&L generation"], correct:1, cat:"Industry Verticals" },
-    { q:"When a restaurant operator says their chef handles paper invoices with no AP training, what Ottimate feature directly solves this?", options:["Automated ERP sync","Mobile invoice capture — snap a photo and it's in Ottimate instantly","Vendor price catalog validation","Multi-currency payment support"], correct:1, cat:"Industry Verticals" }
+    { q:"When a restaurant operator says their chef handles paper invoices with no AP training, what Ottimate feature directly solves this?", options:["Automated ERP sync","Mobile invoice capture — snap a photo and it's in Ottimate instantly","Vendor price catalog validation","Multi-currency payment support"], correct:1, cat:"Industry Verticals" },
+    { q:"Which Ottimate feature helps restaurant operators detect when a vendor charges more than the agreed-upon contract price before an invoice is approved?", options:["Multi-location rollup reporting","Cost file / price catalog validation","Mobile invoice capture","Vendor statement reconciliation"], correct:1, cat:"Industry Verticals" }
   ],
   hospitality: [
     { q:"What makes AP particularly complex for hotels and resorts compared to single-location businesses?", options:["They only accept cash payments","Multiple departments with different spending patterns and approval needs","Hospitality vendors don't send invoices","Hotels use paper-only accounting systems"], correct:1, cat:"Industry Verticals" },
-    { q:"A hotel's Finance Director needs to control spending across F&B, Housekeeping, and Maintenance departments. Which Ottimate capability is most relevant?", options:["A single consolidated GL code for all hotel expenses","Configurable approval workflows with department-level GL coding and spend visibility","Mobile app for capturing delivery receipts at the loading dock","DSD Receiving for hotel supply vendors"], correct:1, cat:"Industry Verticals" }
+    { q:"A hotel's Finance Director needs to control spending across F&B, Housekeeping, and Maintenance departments. Which Ottimate capability is most relevant?", options:["A single consolidated GL code for all hotel expenses","Configurable approval workflows with department-level GL coding and spend visibility","Mobile app for capturing delivery receipts at the loading dock","DSD Receiving for hotel supply vendors"], correct:1, cat:"Industry Verticals" },
+    { q:"What challenge does Ottimate solve when a hotel's department heads each need to review and approve only their own department's invoices?", options:["It consolidates all approvals to the corporate finance team only","Configurable approval routing sends each invoice to the right approver based on department, vendor, or amount","It eliminates department-level approval entirely to speed up the process","It requires all approvals to flow through IT before reaching finance"], correct:1, cat:"Industry Verticals" }
   ],
   retail: [
     { q:"What Ottimate feature helps retail operators verify pricing at the point of DSD delivery?", options:["Batch email extraction","GL coding automation","DSD Receiving — scans receipt and checks against price catalog instantly","Vendor statement reconciliation"], correct:2, cat:"Industry Verticals" },
-    { q:"A specialty retail chain receives hundreds of DSD invoices weekly and suspects they are being overcharged. Which Ottimate feature directly addresses this?", options:["Automated GL coding","Cost file / price catalog validation that flags price discrepancies at the line-item level","Multi-location rollup reporting","EDI-based invoice upload"], correct:1, cat:"Industry Verticals" }
+    { q:"A specialty retail chain receives hundreds of DSD invoices weekly and suspects they are being overcharged. Which Ottimate feature directly addresses this?", options:["Automated GL coding","Cost file / price catalog validation that flags price discrepancies at the line-item level","Multi-location rollup reporting","EDI-based invoice upload"], correct:1, cat:"Industry Verticals" },
+    { q:"A multi-location retail chain wants to reduce the risk of paying vendors more than their contracted price. Which Ottimate capability directly addresses this?", options:["Mobile invoice capture for store managers","DSD Receiving combined with cost file validation to catch price discrepancies at delivery","Automated ERP sync for payment processing","Consolidated spend reporting across all locations"], correct:1, cat:"Industry Verticals" }
   ],
   grocery: [
     { q:"Why is price discrepancy detection especially critical for grocery businesses?", options:["Grocery stores pay vendors in cash","Tight margins mean even small per-item price variances significantly impact profitability","Grocery vendors never agree to price catalogs","Grocery invoices are always electronic"], correct:1, cat:"Industry Verticals" },
-    { q:"What does Ottimate's cost file validation feature do for a grocery chain with contracted vendor pricing?", options:["Automatically renegotiates contracts when prices rise","Compares every invoice line item against the vendor's contracted price catalog and flags overcharges","Converts handwritten delivery receipts into electronic invoices","Syncs payment schedules to the vendor's billing cycle"], correct:1, cat:"Industry Verticals" }
+    { q:"What does Ottimate's cost file validation feature do for a grocery chain with contracted vendor pricing?", options:["Automatically renegotiates contracts when prices rise","Compares every invoice line item against the vendor's contracted price catalog and flags overcharges","Converts handwritten delivery receipts into electronic invoices","Syncs payment schedules to the vendor's billing cycle"], correct:1, cat:"Industry Verticals" },
+    { q:"For an independent grocery chain receiving hundreds of DSD deliveries per week, what is the primary financial risk that Ottimate helps eliminate?", options:["Late payment penalties from vendors","Overpaying vendors due to price variances between contracted rates and actual invoice amounts","Duplicate vendor registrations in the ERP","Manual bank reconciliations at month-end"], correct:1, cat:"Industry Verticals" }
   ],
   seniorliving: [
     { q:"What compliance requirement makes AP accuracy especially critical in senior living?", options:["PCI DSS for credit card payments","HIPAA and state-level audit requirements for healthcare facilities","SOX compliance for public companies","GAAP for international reporting"], correct:1, cat:"Industry Verticals" },
-    { q:"A senior living operator manages 15 communities, each with separate budgets and AP teams. What Ottimate capability provides the most value to their corporate finance leadership?", options:["Individual paper filing systems at each community","Centralized visibility and consolidated spend reporting across all communities","Local bank account management at each community","Vendor-specific mobile apps for each location"], correct:1, cat:"Industry Verticals" }
+    { q:"A senior living operator manages 15 communities, each with separate budgets and AP teams. What Ottimate capability provides the most value to their corporate finance leadership?", options:["Individual paper filing systems at each community","Centralized visibility and consolidated spend reporting across all communities","Local bank account management at each community","Vendor-specific mobile apps for each location"], correct:1, cat:"Industry Verticals" },
+    { q:"Why is centralized AP visibility especially important for a senior living organization managing multiple communities?", options:["Each community uses a different currency for transactions","Corporate leadership can monitor spend, ensure policy compliance, and catch discrepancies across all locations in one place","Each community is required by law to use separate AP systems","Centralization eliminates the need for any community-level financial review"], correct:1, cat:"Industry Verticals" }
   ],
   healthcare: [
     { q:"For a healthcare organization evaluating AP automation, which Ottimate capability most directly supports their compliance and audit readiness requirements?", options:["Multi-currency payment processing","Mobile invoice capture for clinical staff","Comprehensive audit trails, SOC 2 Type 2 certification, and accurate GL coding for every invoice","DSD Receiving for medical supply deliveries"], correct:2, cat:"Industry Verticals" },
-    { q:"What is the primary reason healthcare organizations prioritize Ottimate's SOC 2 Type 2 certification when evaluating AP solutions?", options:["It allows Ottimate to process HIPAA-protected patient data directly","Independent auditors have verified Ottimate's security controls are in place and working over time — not just at a single point","SOC 2 Type 2 is required by all healthcare ERP systems for integration","It automatically generates compliance reports for state regulators"], correct:1, cat:"Industry Verticals" }
+    { q:"What is the primary reason healthcare organizations prioritize Ottimate's SOC 2 Type 2 certification when evaluating AP solutions?", options:["It allows Ottimate to process HIPAA-protected patient data directly","Independent auditors have verified Ottimate's security controls are in place and working over time — not just at a single point","SOC 2 Type 2 is required by all healthcare ERP systems for integration","It automatically generates compliance reports for state regulators"], correct:1, cat:"Industry Verticals" },
+    { q:"A healthcare group is concerned about AP staff accessing sensitive financial data from unauthorized roles. Which Ottimate feature addresses this concern?", options:["Mobile invoice capture for clinical staff","Role-based permissions and SOC 2 Type 2 certified security controls that limit access by user role","EDI integration with medical supply vendors","Automated GL coding for medical supply categories"], correct:1, cat:"Industry Verticals" }
   ]
 };
 
-// Builds the full exam question set: 10 base + 5 dynamic vertical + 5 persona = 20 total
+// General fallback — used only when the selected vertical pool cannot fill 5 slots (e.g., 1 vertical selected)
+const VERTICAL_EXAM_FALLBACK = [
+  { q:"What makes Ottimate particularly well-suited for industries like restaurants, hospitality, and grocery compared to a general-purpose AP tool?", options:["Lower price point than generic AP tools","10+ years of deep learning AI trained specifically on the invoice formats and workflows of these industries","A simpler user interface than enterprise AP platforms","A larger vendor payment network than competitors"], correct:1, cat:"Industry Verticals" },
+  { q:"Which of the following is the best example of an Ottimate capability that a generic AP tool would not offer?", options:["Sending payment reminders to vendors","DSD Receiving — scanning a delivery receipt on-site and instantly flagging price discrepancies against the vendor's price catalog","Uploading invoices via email","Exporting GL data to an ERP"], correct:1, cat:"Industry Verticals" }
+];
+
+// Builds the full exam question set: 10 base + 5 dynamic vertical + 5 persona = always exactly 20 total
 function buildExamQuestions() {
   var selected = (APP.verticals && APP.verticals.length > 0) ? APP.verticals : Object.keys(VERTICAL_EXAM_POOL);
   var picked = [];
-  // Pick 1 question per selected vertical (random choice from each vertical's pool)
+  // Step 1: Pick 1 question per selected vertical (random choice from pool)
   selected.forEach(function(v) {
     var pool = VERTICAL_EXAM_POOL[v];
     if (pool && pool.length > 0) {
       picked.push(pool[Math.floor(Math.random() * pool.length)]);
     }
   });
-  // Shuffle
+  // Shuffle initial picks
   picked.sort(function() { return Math.random() - 0.5; });
-  // Cap at 5; if fewer than 5, cycle through selected verticals to fill up using unused questions
-  var attempts = 0;
-  var idx = 0;
-  while (picked.length < 5 && attempts < 30) {
+  // Step 2: Fill remaining slots by cycling through unused vertical-specific questions
+  var attempts = 0, idx = 0;
+  while (picked.length < 5 && attempts < 50) {
     var v = selected[idx % selected.length];
     var pool = VERTICAL_EXAM_POOL[v] || [];
     var unused = pool.filter(function(q) { return picked.indexOf(q) === -1; });
@@ -2310,8 +2322,15 @@ function buildExamQuestions() {
     idx++;
     attempts++;
   }
+  // Step 3: If still short (only 1 vertical with 3 questions can give max 3), fill from general fallback
+  var fallbackIdx = 0;
+  while (picked.length < 5 && fallbackIdx < VERTICAL_EXAM_FALLBACK.length) {
+    var fb = VERTICAL_EXAM_FALLBACK[fallbackIdx];
+    if (picked.indexOf(fb) === -1) picked.push(fb);
+    fallbackIdx++;
+  }
   var verticalQs = picked.slice(0, 5);
-  // Final order: Accounting (5) + Meet Ottimate (5) + Industry Verticals (5 dynamic) + Persona (5)
+  // Final order: Accounting (5) + Meet Ottimate (5) + Industry Verticals (5 dynamic) + Persona (5) = 20
   return EXAM_QUESTIONS_BASE.slice(0, 10).concat(verticalQs).concat(EXAM_QUESTIONS_BASE.slice(10));
 }
 
