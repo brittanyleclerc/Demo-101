@@ -2823,10 +2823,12 @@ function submitExam() {
   });
   const pct = Math.round((score / EXAM_QUESTIONS.length) * 100);
   const passed = pct >= 80;
+  const alreadyPassed = APP.examPassed; // track if this is a first-time pass
   APP.examScore = score;
   APP.examPassed = passed;
   if (passed) APP.certVerticals = APP.verticals.slice(); // snapshot verticals at time of passing
   saveState();
+  if (passed && !alreadyPassed) sendSlackCertification('Core AP + Statements — Demo Training', score, EXAM_QUESTIONS.length);
   const resultBanner = document.createElement('div');
   resultBanner.style.cssText = 'position:sticky;top:58px;z-index:100;padding:1rem 2rem;text-align:center;font-weight:700;font-size:1.05rem;';
   resultBanner.style.background = passed ? 'var(--green)' : 'var(--red)';
@@ -3091,6 +3093,41 @@ function saveEditedVerticals() {
   banner.textContent = '✅ Verticals updated — Reference Materials will reflect your new selection.';
   document.body.appendChild(banner);
   setTimeout(function(){ banner.remove(); }, 4000);
+}
+
+// ── SLACK NOTIFICATION ────────────────────────────────────
+const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+
+function sendSlackCertification(dashboardName, score, total) {
+  try {
+    const pct = Math.round((score / total) * 100);
+    const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
+    const vertLabels = certVerts.map(function(v) { return VERTICAL_LABELS[v] || v; }).join(', ') || 'N/A';
+    const payload = {
+      blocks: [
+        { type: 'header', text: { type: 'plain_text', text: '🎓 New Certification Earned!', emoji: true } },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: '*Name:*\n' + APP.name },
+            { type: 'mrkdwn', text: '*Role:*\n' + APP.role },
+            { type: 'mrkdwn', text: '*Training Completed:*\n' + dashboardName },
+            { type: 'mrkdwn', text: '*Exam Score:*\n' + score + '/' + total + ' (' + pct + '%)' },
+            { type: 'mrkdwn', text: '*Date Issued:*\n' + APP.certDate },
+            { type: 'mrkdwn', text: '*Verticals Trained:*\n' + vertLabels }
+          ]
+        },
+        { type: 'divider' },
+        { type: 'context', elements: [{ type: 'mrkdwn', text: '✅ This rep has successfully completed all training modules and passed the final certification exam.' }] }
+      ]
+    };
+    fetch(SLACK_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+    });
+  } catch(e) {}
 }
 
 function saveState() {
