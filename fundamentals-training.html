@@ -1349,6 +1349,7 @@ function moduleShell(num, subtitle, tabDefs, contentHTML, quizData) {
     </div>
     <div class="module-tabs">${tabBtns}</div>
     ${tabs}`;
+  restoreQuizState(num);
 }
 
 function buildInlineQuiz(moduleNum, questions) {
@@ -1456,6 +1457,7 @@ function submitInlineQuiz(moduleNum) {
 
   document.getElementById(`iq-submit-${moduleNum}`).style.display = 'none';
   if (!passed) document.getElementById(`iq-retake-${moduleNum}`).style.display = 'none';
+  saveState();
 }
 
 function retakeInlineQuiz(moduleNum) {
@@ -1463,21 +1465,73 @@ function retakeInlineQuiz(moduleNum) {
   IQ_ANSWERS[moduleNum] = {};
   const questions = QUIZ_DATA[moduleNum];
   if (!questions) return;
-  
+
   questions.forEach((q, qi) => {
     for (let oi = 0; oi < q.options.length; oi++) {
       const el = document.getElementById(`iqopt-${moduleNum}-${qi}-${oi}`);
       if (el) {
         el.classList.remove('selected', 'correct-ans', 'wrong-ans', 'reveal-correct');
         el.style.pointerEvents = '';
+        const radio = el.querySelector('input[type="radio"]');
+        if (radio) radio.checked = false;
       }
     }
   });
-  
+
   const resultEl = document.getElementById(`iq-result-${moduleNum}`);
   if (resultEl) resultEl.style.display = 'none';
   document.getElementById(`iq-submit-${moduleNum}`).style.display = 'inline-block';
   document.getElementById(`iq-retake-${moduleNum}`).style.display = 'none';
+  saveState();
+}
+
+function restoreQuizState(moduleNum) {
+  if (!IQ_SUBMITTED[moduleNum]) return;
+  const questions = QUIZ_DATA[moduleNum];
+  if (!questions) return;
+  const answers = IQ_ANSWERS[moduleNum] || {};
+  // Compute score from saved answers
+  let score = 0;
+  questions.forEach((q, qi) => { if (answers[qi] === q.correct) score++; });
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 80;
+  // Re-apply visual state to option elements
+  questions.forEach((q, qi) => {
+    const chosen = answers[qi];
+    const correct = q.correct;
+    for (let oi = 0; oi < q.options.length; oi++) {
+      const el = document.getElementById(`iqopt-${moduleNum}-${qi}-${oi}`);
+      if (!el) continue;
+      el.style.pointerEvents = 'none';
+      if (oi === chosen) el.classList.add('selected');
+      if (oi === correct) el.classList.add('correct-ans');
+      else if (oi === chosen && oi !== correct) el.classList.add('wrong-ans');
+      const radio = el.querySelector('input[type="radio"]');
+      if (radio && oi === chosen) radio.checked = true;
+    }
+  });
+  // Rebuild result banner
+  const nextActionBtn = passed
+    ? (moduleNum < 4
+        ? `<button class="btn btn-primary" style="margin-top:1rem;" onclick="showModule(${moduleNum+1})">Continue to Module ${moduleNum+1}: ${MODULE_NAMES[moduleNum+1]} →</button>`
+        : `<button class="btn btn-primary" style="margin-top:1rem;" onclick="tryExam()">🎓 Take the Final Exam →</button>`)
+    : `<button class="btn btn-secondary" style="margin-top:1rem;" onclick="retakeInlineQuiz(${moduleNum})">↩ Retake Quiz</button>`;
+  const resultEl = document.getElementById(`iq-result-${moduleNum}`);
+  if (resultEl) {
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `<div style="text-align:center;padding:1.5rem 1rem;background:${passed?'var(--green-light)':'var(--red-light)'};border-radius:var(--radius);margin-top:1rem;border:2px solid ${passed?'var(--green)':'var(--red)'};">
+      <div style="font-size:2rem;font-weight:800;color:${passed?'var(--green)':'var(--red)'};">${score}/${total}</div>
+      <div style="font-size:1rem;font-weight:700;margin:0.25rem 0;color:${passed?'var(--green)':'var(--red)'};">${pct}% — ${passed?'PASSED ✅':'NOT PASSED ❌'}</div>
+      <p style="font-size:0.875rem;color:var(--gray5);margin:0.5rem 0;">${passed?'Great work! This module is now marked complete.':'You need 80% to pass. Review the content and try again.'}</p>
+      ${APP.modulesDone.size >= 4 ? '<p style="color:var(--green);font-weight:700;margin-top:0.75rem;">🏆 All modules complete! The Final Exam is now unlocked.</p>' : ''}
+      ${nextActionBtn}
+    </div>`;
+  }
+  const submitEl = document.getElementById(`iq-submit-${moduleNum}`);
+  if (submitEl) submitEl.style.display = 'none';
+  const retakeEl = document.getElementById(`iq-retake-${moduleNum}`);
+  if (retakeEl) retakeEl.style.display = 'none';
 }
 
 function renderM1() {
@@ -3451,6 +3505,8 @@ document.addEventListener('click', function(e) {
       const s = JSON.parse(saved);
       if (s.modulesDone) s.modulesDone.forEach(m => APP.modulesDone.add(m));
       if (s.quizScores) APP.quizScores = s.quizScores;
+      if (s.iqAnswers) IQ_ANSWERS = s.iqAnswers;
+      if (s.iqSubmitted) IQ_SUBMITTED = s.iqSubmitted;
       // Restore identity so returning users skip the welcome screen
       if (s.name && s.role && s.verticals && s.verticals.length > 0) {
         APP.name = s.name;
@@ -3527,7 +3583,9 @@ function saveState() {
       certVerticals: APP.certVerticals,
       certDate: APP.certDate,
       modulesDone: Array.from(APP.modulesDone),
-      quizScores: APP.quizScores
+      quizScores: APP.quizScores,
+      iqAnswers: IQ_ANSWERS,
+      iqSubmitted: IQ_SUBMITTED
     }));
   } catch(e) {}
 }
