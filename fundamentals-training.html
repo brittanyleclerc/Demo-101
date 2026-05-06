@@ -1840,6 +1840,7 @@ function renderM3() {
     <div class="vertical-tabs">${tabBtns}</div>
     ${contents}
     ${quizPanel}`;
+  restoreQuizState(3);
 }
 
 function switchVTab(btn, prefix, vKey) {
@@ -2833,8 +2834,10 @@ let examSubmitted = false;
 
 function renderExam() {
   EXAM_QUESTIONS = buildExamQuestions(); // rebuild with current verticals
-  examAnswers = {};
-  examSubmitted = false;
+  if (!APP.examPassed) {
+    examAnswers = {};
+    examSubmitted = false;
+  }
   const letters = ['A','B','C','D'];
   let qHTML = EXAM_QUESTIONS.map((q, i) => {
     const opts = q.options.map((o, oi) =>
@@ -2854,8 +2857,9 @@ function renderExam() {
     <div class="page-hero"><h1>🎓 Final Certification Exam</h1><p>Ottimate Fundamentals Training &amp; Certification — 20 questions, 80% to pass.</p></div>
     ${qHTML}
     <div class="text-center mt-3 mb-3">
-      <button class="btn btn-primary" onclick="submitExam()" style="font-size:1rem;padding:0.9rem 2.5rem;">Submit Exam →</button>
+      <button class="btn btn-primary" id="exam-submit-btn" onclick="submitExam()" style="font-size:1rem;padding:0.9rem 2.5rem;">Submit Exam →</button>
     </div>`;
+  if (APP.examPassed && examSubmitted) restoreExamState();
 }
 
 function selectExamAnswer(qIdx, optIdx) {
@@ -2912,6 +2916,48 @@ function submitExam() {
   const mainArea = document.getElementById('main-area');
   mainArea.insertBefore(resultBanner, mainArea.firstChild);
   mainArea.scrollTop = 0;
+}
+
+function restoreExamState() {
+  const score = APP.examScore;
+  const total = EXAM_QUESTIONS.length;
+  const pct = Math.round((score / total) * 100);
+  // Re-apply correct/wrong highlighting and lock all options
+  EXAM_QUESTIONS.forEach((q, i) => {
+    const chosen = examAnswers[i];
+    const correct = q.correct;
+    for (let j = 0; j < q.options.length; j++) {
+      const el = document.getElementById(`eopt-${i}-${j}`);
+      if (!el) continue;
+      el.style.pointerEvents = 'none';
+      if (j === chosen) el.classList.add('selected');
+      if (j === correct) el.classList.add('correct-ans');
+      else if (j === chosen && j !== correct) el.classList.add('wrong-ans');
+      const radio = el.querySelector('input[type="radio"]');
+      if (radio && j === chosen) radio.checked = true;
+    }
+    // Re-add explanations
+    if (q.explanation) {
+      const qDivs = document.querySelectorAll('.exam-q');
+      if (qDivs[i]) {
+        const expl = document.createElement('div');
+        expl.style.cssText = 'margin-top:0.85rem;padding:0.75rem 1rem;background:#eef3ff;border-left:4px solid var(--blue);border-radius:0 6px 6px 0;font-size:0.87rem;line-height:1.65;color:var(--navy);';
+        expl.innerHTML = '<span style="font-weight:700;color:var(--blue);">📝 Additional Notes: </span>' + q.explanation;
+        qDivs[i].appendChild(expl);
+      }
+    }
+  });
+  // Hide submit button
+  const submitBtn = document.getElementById('exam-submit-btn');
+  if (submitBtn) submitBtn.style.display = 'none';
+  // Re-show passed result banner
+  const resultBanner = document.createElement('div');
+  resultBanner.style.cssText = 'position:sticky;top:58px;z-index:100;padding:1rem 2rem;text-align:center;font-weight:700;font-size:1.05rem;';
+  resultBanner.style.background = 'var(--green)';
+  resultBanner.style.color = 'white';
+  resultBanner.innerHTML = `🎉 Congratulations! You scored ${score}/${total} (${pct}%) — You PASSED! <button onclick="showCertificate()" class="btn btn-sm" style="background:white;color:var(--green);margin-left:1rem;">Get Your Certificate →</button>`;
+  const mainArea = document.getElementById('main-area');
+  mainArea.insertBefore(resultBanner, mainArea.firstChild);
 }
 
 function showCertificate() {
@@ -3509,6 +3555,10 @@ document.addEventListener('click', function(e) {
       if (s.quizScores) APP.quizScores = s.quizScores;
       if (s.iqAnswers) IQ_ANSWERS = s.iqAnswers;
       if (s.iqSubmitted) IQ_SUBMITTED = s.iqSubmitted;
+      if (s.examPassed) APP.examPassed = s.examPassed;
+      if (s.examScore !== undefined && s.examScore !== null) APP.examScore = s.examScore;
+      if (s.examAnswers) examAnswers = s.examAnswers;
+      if (s.examSubmitted) examSubmitted = s.examSubmitted;
       // Restore identity so returning users skip the welcome screen
       if (s.name && s.role && s.verticals && s.verticals.length > 0) {
         APP.name = s.name;
@@ -3576,7 +3626,7 @@ function saveEditedVerticals() {
 }
 
 // ── SLACK NOTIFICATION ────────────────────────────────────
-const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
 
 function sendSlackCertification(dashboardName, score, total) {
   try {
@@ -3604,8 +3654,8 @@ function sendSlackCertification(dashboardName, score, total) {
     fetch(SLACK_WEBHOOK_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'payload=' + encodeURIComponent(JSON.stringify(payload))
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(payload)
     });
   } catch(e) {}
 }
@@ -3622,7 +3672,11 @@ function saveState() {
       modulesDone: Array.from(APP.modulesDone),
       quizScores: APP.quizScores,
       iqAnswers: IQ_ANSWERS,
-      iqSubmitted: IQ_SUBMITTED
+      iqSubmitted: IQ_SUBMITTED,
+      examPassed: APP.examPassed,
+      examScore: APP.examScore,
+      examAnswers: examAnswers,
+      examSubmitted: examSubmitted
     }));
   } catch(e) {}
 }
