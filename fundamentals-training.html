@@ -605,7 +605,58 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
 .ref-panel { display: none; }
 .ref-panel.active { display: block; }
 
-/* ── BATTLECARDS ── */
+/* ── DISCOVERY QUESTION CARDS ── */
+.dq-card { border: 1px solid var(--gray2); border-radius: var(--radius); margin-bottom: 0.6rem; overflow: hidden; }
+.dq-card-header { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1rem; background: var(--gray1); cursor: pointer; user-select: none; font-weight: 700; font-size: 0.9rem; color: var(--navy); transition: background 0.15s; }
+.dq-card-header:hover { background: var(--teal-light); }
+.dq-card.open .dq-card-header { background: var(--teal-light); border-bottom: 1px solid var(--gray2); }
+.dq-card-count { font-size: 0.75rem; color: var(--gray4); font-weight: 500; margin-left: auto; }
+.dq-chevron { font-size: 0.75rem; color: var(--gray4); transition: transform 0.2s; }
+.dq-card.open .dq-chevron { transform: rotate(180deg); }
+.dq-card-body { display: none; padding: 0.75rem; }
+.dq-card.open .dq-card-body { display: block; }
+.dq-q { padding: 0.65rem 0.85rem; border: 1.5px solid var(--gray2); border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.875rem; color: var(--gray5); cursor: pointer; transition: all 0.15s; line-height: 1.45; }
+.dq-q:hover { border-color: var(--teal); background: var(--teal-light); }
+.dq-q.dq-selected { border-color: var(--blue); background: #e8f4ff; color: var(--navy); font-weight: 600; }
+.dq-q.dq-selected::before { content: '✓ '; color: var(--blue); }
+
+/* ── BATTLECARD GRID & TILES ── */
+.bc-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.bc-filter { padding:0.4rem 1rem; border-radius:20px; border:2px solid var(--gray2); background:var(--white); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.15s; color:var(--gray5); }
+.bc-filter.active, .bc-filter:hover { background:var(--navy); border-color:var(--navy); color:white; }
+.bc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+.bc-tile { background:var(--white); border:2px solid var(--gray2); border-radius:var(--radius); padding:1rem; cursor:pointer; transition:all 0.18s; display:flex; flex-direction:column; gap:0.35rem; }
+.bc-tile:hover { border-color:var(--teal); box-shadow:0 4px 16px rgba(0,174,199,0.15); transform:translateY(-2px); }
+.bc-tile[data-threat="high"] { border-left:4px solid #e74c3c; }
+.bc-tile[data-threat="medium"] { border-left:4px solid #f39c12; }
+.bc-tile[data-threat="easy"] { border-left:4px solid #27ae60; }
+.bc-tile-threat { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+.bc-tile-name { font-size:1rem; font-weight:800; color:var(--navy); }
+.bc-tile-tagline { font-size:0.78rem; color:var(--gray5); line-height:1.4; flex:1; }
+.bc-tile-tags { font-size:0.72rem; color:var(--gray4); }
+.bc-tile-cta { font-size:0.78rem; font-weight:700; color:var(--teal); margin-top:0.25rem; }
+/* Battlecard modal */
+.bc-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9000; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow-y:auto; }
+.bc-modal-overlay.bc-open { display:flex; }
+.bc-modal { background:white; border-radius:14px; width:100%; max-width:680px; box-shadow:0 8px 40px rgba(0,0,0,0.22); overflow:hidden; margin:auto; }
+.bc-modal-hdr { background:var(--navy); color:white; padding:1.1rem 1.25rem; display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+.bc-modal-hdr h3 { font-size:1.1rem; margin:0 0 0.2rem; }
+.bc-modal-hdr p { font-size:0.82rem; opacity:0.8; margin:0; }
+.bc-modal-close { background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; line-height:1; padding:0; flex-shrink:0; }
+.bc-modal-tabs { display:flex; border-bottom:1px solid var(--gray2); background:var(--gray1); }
+.bc-mtab { flex:1; padding:0.65rem 0.5rem; border:none; background:none; font-size:0.78rem; font-weight:600; color:var(--gray4); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.15s; }
+.bc-mtab:hover { color:var(--navy); }
+.bc-mtab.active { color:var(--navy); border-bottom-color:var(--teal); background:white; }
+.bc-modal-body { padding:1.25rem; max-height:420px; overflow-y:auto; }
+.bc-mpanel { display:none; }
+.bc-mpanel.active { display:block; }
+.bc-mpanel h4 { font-size:0.85rem; font-weight:700; color:var(--navy); margin:1rem 0 0.4rem; text-transform:uppercase; letter-spacing:0.5px; }
+.bc-mpanel h4:first-child { margin-top:0; }
+.bc-mpanel p { font-size:0.875rem; color:var(--gray5); line-height:1.55; margin:0 0 0.5rem; }
+.bc-mpanel ul { padding-left:1.1rem; margin:0 0 0.75rem; }
+.bc-mpanel ul li { font-size:0.855rem; color:var(--gray5); line-height:1.5; margin-bottom:0.35rem; }
+
+/* ── BATTLECARDS (legacy scroll styles kept for any remaining uses) ── */
 .battlecard { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 1.25rem; }
 .bc-header {
   background: var(--navy);
@@ -828,16 +879,28 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
 
 /* ── PRINT ── */
 @media print {
-  body > *:not(#screen-certificate) { display: none !important; }
-  #screen-certificate { display: flex !important; padding: 0; }
-  .cert-actions { display: none !important; }
-  .certificate { box-shadow: none; }
+  /* Certificate print — only when the cert screen is active (i.e. exam was passed) */
+  body:not(.printing-refs) > *:not(#screen-certificate) { display: none !important; }
+  body:not(.printing-refs) #screen-certificate:not(.active) { display: none !important; }
+  body:not(.printing-refs) #screen-certificate.active { display: flex !important; padding: 0; }
+  body:not(.printing-refs) .cert-actions { display: none !important; }
+  body:not(.printing-refs) .certificate { box-shadow: none; }
+  /* Ref materials print mode */
+  body.printing-refs .sidebar,
+  body.printing-refs .topbar,
+  body.printing-refs .back-link,
+  body.printing-refs .ref-tabs,
+  body.printing-refs .btn,
+  body.printing-refs #screen-certificate { display: none !important; }
+  body.printing-refs .ref-panel { display: block !important; }
+  body.printing-refs .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
 }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .vertical-grid { grid-template-columns: repeat(2, 1fr); }
+  .bc-grid { grid-template-columns: 1fr; }
   .bc-body { grid-template-columns: 1fr; }
   .bc-col { border-right: none; border-bottom: 1px solid var(--gray2); }
   .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -1282,12 +1345,16 @@ function selectIQAnswer(moduleNum, qIdx, optIdx) {
   if (IQ_SUBMITTED[moduleNum]) return;
   if (!IQ_ANSWERS[moduleNum]) IQ_ANSWERS[moduleNum] = {};
   IQ_ANSWERS[moduleNum][qIdx] = optIdx;
-  
+
   const questions = QUIZ_DATA[moduleNum];
   if (!questions) return;
   for (let j = 0; j < questions[qIdx].options.length; j++) {
     const el = document.getElementById(`iqopt-${moduleNum}-${qIdx}-${j}`);
-    if (el) el.classList.toggle('selected', j === optIdx);
+    if (el) {
+      el.classList.toggle('selected', j === optIdx);
+      const radio = el.querySelector('input[type="radio"]');
+      if (radio) radio.checked = (j === optIdx);
+    }
   }
 }
 
@@ -1440,24 +1507,49 @@ function renderM1() {
     </div>
   </div>
   <div class="info-box win"><div class="info-box-title">Ottimate Connection</div>Ottimate's automatic GL coding and real-time reporting feed directly into accurate financial statements — reducing close time and improving CFO confidence in the numbers.</div>
-  <h3 class="section-h3">Common ERPs Ottimate Integrates With</h3>
-  <p class="body-text">When a prospect asks "Does it integrate with our system?" — the answer is almost always yes.</p>
+  <h3 class="section-h3">ERPs &amp; Accounting Systems Ottimate Integrates With</h3>
+  <p class="body-text">When a prospect asks "Does it integrate with our system?" — the answer is almost always yes. Below is the current integration list by connection type.</p>
   <div class="two-col">
-    <ul class="content-list">
-      <li>QuickBooks Online &amp; Desktop</li>
-      <li>NetSuite</li>
-      <li>Sage Intacct</li>
-      <li>Microsoft Dynamics / Great Plains</li>
-      <li>Xero</li>
-      <li>Acumatica</li>
-    </ul>
-    <ul class="content-list">
-      <li>Restaurant365</li>
-      <li>Compeat</li>
-      <li>Inn-Flow</li>
-      <li>M3 (hospitality)</li>
-      <li>And many more — ask your SE for a full list</li>
-    </ul>
+    <div>
+      <p style="font-size:0.8rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">API</p>
+      <ul class="content-list" style="margin-bottom:1rem;">
+        <li>Acumatica</li>
+        <li>Microsoft Dynamics BC</li>
+        <li>NetSuite</li>
+        <li>QuickBooks Online</li>
+        <li>Intuit Enterprise Suite</li>
+        <li>Sage 300</li>
+        <li>Sage Intacct</li>
+        <li>Sage Intacct CRE</li>
+        <li>Aptech PVNG <span style="font-size:0.75rem;color:var(--gray4);">(Vendor Pay via Disbursement File)</span></li>
+        <li>Restaurant365 <span style="font-size:0.75rem;color:var(--gray4);">(API/CSV Hybrid)</span></li>
+      </ul>
+      <p style="font-size:0.8rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">SQL / Web Connector</p>
+      <ul class="content-list">
+        <li>Great Plains <span style="font-size:0.75rem;color:var(--gray4);">(SQL eConnect or Smart Connect)</span></li>
+        <li>QuickBooks Desktop <span style="font-size:0.75rem;color:var(--gray4);">(Web Connector)</span></li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:0.8rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Automated XML / FTP</p>
+      <ul class="content-list" style="margin-bottom:1rem;">
+        <li>M3</li>
+      </ul>
+      <p style="font-size:0.8rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Flat File</p>
+      <ul class="content-list">
+        <li>Clubessential</li>
+        <li>Compeat</li>
+        <li>Jonas Club</li>
+        <li>Jonas Encore</li>
+        <li>FMS</li>
+        <li>Northstar</li>
+        <li>Sage 50</li>
+        <li>Sage 100</li>
+        <li>Matrix Care</li>
+        <li>PCC</li>
+        <li>And more</li>
+      </ul>
+    </div>
   </div>
 </div>`,
 
@@ -1900,7 +1992,7 @@ function renderRef() {
       <div class="card">
         <div class="flex justify-between items-center mb-2">
           <div class="card-title" style="margin:0;border:none;padding:0;">🏢 Ottimate At-a-Glance</div>
-          <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print</button>
+          <button class="btn btn-secondary btn-sm" onclick="printRefMaterials()">🖨️ Print Reference Materials</button>
         </div>
         <div class="stat-grid">
           <div class="stat-box"><div class="stat-num">>90%</div><div class="stat-lbl">AP process automated</div></div>
@@ -1930,20 +2022,46 @@ function renderRef() {
       <div class="card">
         <div class="card-title">🔌 ERP Integrations</div>
         <div class="two-col">
-          <ul class="content-list">
-            <li>QuickBooks Online &amp; Desktop</li>
-            <li>NetSuite</li>
-            <li>Sage Intacct</li>
-            <li>Microsoft Dynamics / Great Plains (GP)</li>
-            <li>Xero</li>
-          </ul>
-          <ul class="content-list">
-            <li>Acumatica</li>
-            <li>Restaurant365</li>
-            <li>Compeat</li>
-            <li>Inn-Flow (hospitality)</li>
-            <li>M3 (hospitality) + more</li>
-          </ul>
+          <div>
+            <p style="font-size:0.78rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">API</p>
+            <ul class="content-list" style="margin-bottom:0.85rem;">
+              <li>Acumatica</li>
+              <li>Microsoft Dynamics BC</li>
+              <li>NetSuite</li>
+              <li>QuickBooks Online</li>
+              <li>Intuit Enterprise Suite</li>
+              <li>Sage 300</li>
+              <li>Sage Intacct</li>
+              <li>Sage Intacct CRE</li>
+              <li>Aptech PVNG <span style="font-size:0.72rem;color:var(--gray4);">(Vendor Pay via Disbursement File)</span></li>
+              <li>Restaurant365 <span style="font-size:0.72rem;color:var(--gray4);">(API/CSV Hybrid)</span></li>
+            </ul>
+            <p style="font-size:0.78rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">SQL / Web Connector</p>
+            <ul class="content-list">
+              <li>Great Plains <span style="font-size:0.72rem;color:var(--gray4);">(SQL eConnect or Smart Connect)</span></li>
+              <li>QuickBooks Desktop <span style="font-size:0.72rem;color:var(--gray4);">(Web Connector)</span></li>
+            </ul>
+          </div>
+          <div>
+            <p style="font-size:0.78rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Automated XML / FTP</p>
+            <ul class="content-list" style="margin-bottom:0.85rem;">
+              <li>M3</li>
+            </ul>
+            <p style="font-size:0.78rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">Flat File</p>
+            <ul class="content-list">
+              <li>Clubessential</li>
+              <li>Compeat</li>
+              <li>Jonas Club</li>
+              <li>Jonas Encore</li>
+              <li>FMS</li>
+              <li>Northstar</li>
+              <li>Sage 50</li>
+              <li>Sage 100</li>
+              <li>Matrix Care</li>
+              <li>PCC</li>
+              <li>And more</li>
+            </ul>
+          </div>
         </div>
         <div class="info-box tip"><div class="info-box-title">Always Confirm</div>If a prospect asks about a specific ERP not on this list, loop in your SE before making promises. This list covers the most common — but it's not exhaustive.</div>
       </div>
@@ -1965,72 +2083,140 @@ function renderRef() {
     <div class="ref-panel" id="ref-discovery">
       <div class="card">
         <div class="card-title">🔍 Discovery Question Bank</div>
-        <div class="dq-section">
-          <h3>🌐 Universal — Use With Any Prospect</h3>
-          <div class="dq-item">"Walk me through what happens when an invoice arrives today — from receipt to payment."</div>
-          <div class="dq-item">"How many invoices do you process per month, and how many people handle that?"</div>
-          <div class="dq-item">"What's your biggest AP frustration right now? If you could fix one thing, what would it be?"</div>
-          <div class="dq-item">"Have you ever paid a vendor the wrong amount? How do you catch those errors today?"</div>
-          <div class="dq-item">"How long does month-end close take, and what's the biggest bottleneck?"</div>
-          <div class="dq-item">"What ERP are you using? Any integration requirements or planned changes?"</div>
-          <div class="dq-item">"What would it mean to your team if AP processed itself 90% of the time?"</div>
+        <p class="body-text" style="margin-bottom:1.25rem;">Click any category to expand and reveal the questions. Select individual questions to highlight them for use during calls.</p>
+        <div id="dq-accordion">
+
+          <div class="dq-card" id="dqc-universal">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-universal')">
+              <span>🌐 Universal — Use With Any Prospect</span>
+              <span class="dq-card-count">7 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Walk me through what happens when an invoice arrives today — from receipt to payment."</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How many invoices do you process per month, and how many people handle that?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What's your biggest AP frustration right now? If you could fix one thing, what would it be?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Have you ever paid a vendor the wrong amount? How do you catch those errors today?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How long does month-end close take, and what's the biggest bottleneck?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What ERP are you using? Any integration requirements or planned changes?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What would it mean to your team if AP processed itself 90% of the time?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-ap">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-ap')">
+              <span>📋 For AP Managers / Controllers</span>
+              <span class="dq-card-count">5 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How confident are you that every line item is coded to the correct GL on the first try?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you handle invoice approvals when approvers are traveling or unavailable?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How many invoices per day does each person on your team process?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What does your approval workflow look like — is it automated or manual?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How much time do you spend every month reconciling vendor statements?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-cfo">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-cfo')">
+              <span>💼 For CFOs / VP Finance</span>
+              <span class="dq-card-count">5 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What's your current cost per invoice processed, all-in including labor?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How much real-time visibility do you have into what's been spent across all locations today?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What's your biggest financial control risk in AP right now?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Have you ever calculated what vendor price discrepancies are costing you annually?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Would it change your view of AP if it could generate revenue rather than just cost?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-it">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-it')">
+              <span>💻 For IT / Operations</span>
+              <span class="dq-card-count">5 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What ERP are you on, and are there any planned migrations or upgrades?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What are your organization's data security and compliance requirements?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Do you require SSO, and what identity provider do you use?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Who would own the implementation on your end, and what's their availability?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What other systems would Ottimate need to connect to beyond your ERP?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-owner">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-owner')">
+              <span>🏪 For Owners / Operators</span>
+              <span class="dq-card-count">5 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How much time do you or your team spend on AP every week?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Do you ever worry about paying vendors the wrong amount? How do you catch that?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Can you tell me right now what you've spent across all locations this week?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"What happens to AP when you're not in the building?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"If AP ran itself 90% of the time, what would you and your team do with those hours?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-restaurant">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-restaurant')">
+              <span>🍽️ Restaurant-Specific</span>
+              <span class="dq-card-count">3 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Who handles invoices when deliveries arrive — kitchen staff, a manager, or a dedicated AP person?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you track food cost variance when vendor prices fluctuate between order and delivery?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Are you able to see your food cost percentage in real time, or do you wait for month-end?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-retail">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-retail')">
+              <span>🛒 Retail / Grocery-Specific</span>
+              <span class="dq-card-count">3 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How many DSD deliveries do you receive per week, and how do you verify pricing at delivery?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Do you use vendor price catalogs or contracted pricing? How do you verify compliance?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you currently manage petty cash and small purchase tracking across locations?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-hospitality">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-hospitality')">
+              <span>🏨 Hospitality-Specific</span>
+              <span class="dq-card-count">3 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you allocate spending across departments — F&amp;B, housekeeping, maintenance, etc.?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How many approval layers does an invoice go through before payment?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Do you have visibility into what each property or department is spending in real time?"</div>
+            </div>
+          </div>
+
+          <div class="dq-card" id="dqc-senior">
+            <div class="dq-card-header" onclick="toggleDQCard('dqc-senior')">
+              <span>🏠 Senior Living / Healthcare-Specific</span>
+              <span class="dq-card-count">3 questions</span>
+              <span class="dq-chevron">▼</span>
+            </div>
+            <div class="dq-card-body">
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you ensure your AP process is audit-ready at all times?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"How do you manage purchasing approvals across multiple communities or facilities?"</div>
+              <div class="dq-q" onclick="this.classList.toggle('dq-selected')">"Have you ever had an audit finding related to your AP documentation?"</div>
+            </div>
+          </div>
+
         </div>
-        <div class="dq-section">
-          <h3>📋 For AP Managers / Controllers</h3>
-          <div class="dq-item">"How confident are you that every line item is coded to the correct GL on the first try?"</div>
-          <div class="dq-item">"How do you handle invoice approvals when approvers are traveling or unavailable?"</div>
-          <div class="dq-item">"How many invoices per day does each person on your team process?"</div>
-          <div class="dq-item">"What does your approval workflow look like — is it automated or manual?"</div>
-          <div class="dq-item">"How much time do you spend every month reconciling vendor statements?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>💼 For CFOs / VP Finance</h3>
-          <div class="dq-item">"What's your current cost per invoice processed, all-in including labor?"</div>
-          <div class="dq-item">"How much real-time visibility do you have into what's been spent across all locations today?"</div>
-          <div class="dq-item">"What's your biggest financial control risk in AP right now?"</div>
-          <div class="dq-item">"Have you ever calculated what vendor price discrepancies are costing you annually?"</div>
-          <div class="dq-item">"Would it change your view of AP if it could generate revenue rather than just cost?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>💻 For IT / Operations</h3>
-          <div class="dq-item">"What ERP are you on, and are there any planned migrations or upgrades?"</div>
-          <div class="dq-item">"What are your organization's data security and compliance requirements?"</div>
-          <div class="dq-item">"Do you require SSO, and what identity provider do you use?"</div>
-          <div class="dq-item">"Who would own the implementation on your end, and what's their availability?"</div>
-          <div class="dq-item">"What other systems would Ottimate need to connect to beyond your ERP?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>🏪 For Owners / Operators</h3>
-          <div class="dq-item">"How much time do you or your team spend on AP every week?"</div>
-          <div class="dq-item">"Do you ever worry about paying vendors the wrong amount? How do you catch that?"</div>
-          <div class="dq-item">"Can you tell me right now what you've spent across all locations this week?"</div>
-          <div class="dq-item">"What happens to AP when you're not in the building?"</div>
-          <div class="dq-item">"If AP ran itself 90% of the time, what would you and your team do with those hours?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>🍽️ Restaurant-Specific</h3>
-          <div class="dq-item">"Who handles invoices when deliveries arrive — kitchen staff, a manager, or a dedicated AP person?"</div>
-          <div class="dq-item">"How do you track food cost variance when vendor prices fluctuate between order and delivery?"</div>
-          <div class="dq-item">"Are you able to see your food cost percentage in real time, or do you wait for month-end?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>🛒 Retail / Grocery-Specific</h3>
-          <div class="dq-item">"How many DSD deliveries do you receive per week, and how do you verify pricing at delivery?"</div>
-          <div class="dq-item">"Do you use vendor price catalogs or contracted pricing? How do you verify compliance?"</div>
-          <div class="dq-item">"How do you currently manage petty cash and small purchase tracking across locations?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>🏨 Hospitality-Specific</h3>
-          <div class="dq-item">"How do you allocate spending across departments — F&amp;B, housekeeping, maintenance, etc.?"</div>
-          <div class="dq-item">"How many approval layers does an invoice go through before payment?"</div>
-          <div class="dq-item">"Do you have visibility into what each property or department is spending in real time?"</div>
-        </div>
-        <div class="dq-section">
-          <h3>🏠 Senior Living / Healthcare-Specific</h3>
-          <div class="dq-item">"How do you ensure your AP process is audit-ready at all times?"</div>
-          <div class="dq-item">"How do you manage purchasing approvals across multiple communities or facilities?"</div>
-          <div class="dq-item">"Have you ever had an audit finding related to your AP documentation?"</div>
-        </div>
+        <p style="font-size:0.78rem;color:var(--gray4);margin-top:1rem;">💡 Tip: Click a question to highlight it. Click the category header to collapse or expand the group.</p>
       </div>
     </div>
 
@@ -2052,56 +2238,360 @@ function renderRef() {
 
     <!-- BATTLECARDS -->
     <div class="ref-panel" id="ref-battlecards">
-      <div class="card" style="background:#FFF3CD;border:2px solid var(--orange);">
+      <div class="card" style="background:#FFF3CD;border:2px solid var(--orange);margin-bottom:1rem;">
         <div class="info-box-title" style="color:var(--orange);">⚠️ Internal Use Only — Verify Before Using in Customer Conversations</div>
         <p style="font-size:0.85rem;margin-top:0.35rem;">These battlecards are based on publicly available competitor information and should be reviewed by your sales leadership or product team for accuracy. Competitive positioning changes — always verify current information before using in deals.</p>
       </div>
 
-      <div class="battlecard">
-        <div class="bc-header"><h3>vs. BILL (Bill.com)</h3><span class="bc-vs">Most common SMB/mid-market competitor</span></div>
-        <div class="bc-body">
-          <div class="bc-col bc-they"><h4>Their Strengths</h4><ul><li>Large vendor/customer payment network</li><li>Brand recognition in SMB space</li><li>Simple UI for basic AP</li><li>Spend management add-ons</li></ul></div>
-          <div class="bc-col bc-we"><h4>Ottimate Wins</h4><ul><li>10+ years of deep learning AI (not rules-based)</li><li>Line-item level data extraction and GL coding</li><li>Industry-specific workflows (restaurants, hospitality, grocery)</li><li>Cost file / price catalog validation</li><li>DSD Receiving for retail and grocery</li><li>3-way PO matching at line-item level</li></ul></div>
-          <div class="bc-col bc-say"><h4>What to Say</h4><ul><li>"BILL is built for simple AP. If you're processing complex, multi-line invoices with price catalog matching and DSD receiving, you need more than that."</li><li>"Our AI has been trained specifically on the invoice formats your industry produces for 10+ years. That's not something they can replicate."</li></ul></div>
+      <!-- Threat filters -->
+      <div class="bc-filters" id="bc-filter-bar">
+        <button class="bc-filter active" onclick="filterBattlecards('all',this)">All 9</button>
+        <button class="bc-filter high" onclick="filterBattlecards('high',this)">🔴 High Threat</button>
+        <button class="bc-filter medium" onclick="filterBattlecards('medium',this)">🟡 Medium</button>
+        <button class="bc-filter easy" onclick="filterBattlecards('easy',this)">🟢 Easier Win</button>
+      </div>
+
+      <!-- Competitor grid -->
+      <div class="bc-grid" id="bc-grid">
+
+        <!-- AvidExchange -->
+        <div class="bc-tile" data-threat="high" onclick="openBCModal('bc-modal-avid')">
+          <div class="bc-tile-threat high">🔴 High Threat</div>
+          <div class="bc-tile-name">AvidExchange</div>
+          <div class="bc-tile-tagline">Middle Market AP Ecosystem — 225+ integrations &amp; AvidPay Network</div>
+          <div class="bc-tile-tags">Real Estate · HOA · Mid-Market</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Bill.com -->
+        <div class="bc-tile" data-threat="high" onclick="openBCModal('bc-modal-bill')">
+          <div class="bc-tile-threat high">🔴 High Threat</div>
+          <div class="bc-tile-name">Bill.com (BILL)</div>
+          <div class="bc-tile-tagline">SMB Financial Platform — accountant channel, 7.1M network members</div>
+          <div class="bc-tile-tags">SMB · Accountant Channel · Horizontal</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Stampli -->
+        <div class="bc-tile" data-threat="high" onclick="openBCModal('bc-modal-stampli')">
+          <div class="bc-tile-threat high">🔴 High Threat</div>
+          <div class="bc-tile-name">Stampli</div>
+          <div class="bc-tile-tagline">Pure-Play AP Automation — "built by AP experts," in-house ERP integrations</div>
+          <div class="bc-tile-tags">Pure AP · In-House ERP · Horizontal</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Ramp -->
+        <div class="bc-tile" data-threat="medium" onclick="openBCModal('bc-modal-ramp')">
+          <div class="bc-tile-threat medium">🟡 Medium Threat</div>
+          <div class="bc-tile-name">Ramp</div>
+          <div class="bc-tile-tagline">Spend Management Platform — corporate card with bundled "lite" AP</div>
+          <div class="bc-tile-tags">Spend Mgmt · Corporate Card · Horizontal</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Tipalti -->
+        <div class="bc-tile" data-threat="medium" onclick="openBCModal('bc-modal-tipalti')">
+          <div class="bc-tile-threat medium">🟡 Medium Threat</div>
+          <div class="bc-tile-name">Tipalti</div>
+          <div class="bc-tile-tagline">Global Payments &amp; Mass Payouts — 200+ countries, 120+ currencies</div>
+          <div class="bc-tile-tags">Global Payments · Mid-Market · International</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Coupa -->
+        <div class="bc-tile" data-threat="medium" onclick="openBCModal('bc-modal-coupa')">
+          <div class="bc-tile-threat medium">🟡 Medium Threat</div>
+          <div class="bc-tile-name">Coupa</div>
+          <div class="bc-tile-tagline">Enterprise BSM Platform — procurement + AP + sourcing + contracts</div>
+          <div class="bc-tile-tags">Enterprise · Full BSM · Global 2000</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Rillion -->
+        <div class="bc-tile" data-threat="medium" onclick="openBCModal('bc-modal-rillion')">
+          <div class="bc-tile-threat medium">🟡 Medium Threat</div>
+          <div class="bc-tile-name">Rillion</div>
+          <div class="bc-tile-tagline">High-End AP Automation — "Riley" AI, high-volume PO line matching</div>
+          <div class="bc-tile-tags">High-End AP · Manufacturing · Healthcare</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Yooz -->
+        <div class="bc-tile" data-threat="easy" onclick="openBCModal('bc-modal-yooz')">
+          <div class="bc-tile-threat easy">🟢 Easier Win</div>
+          <div class="bc-tile-name">Yooz</div>
+          <div class="bc-tile-tagline">"Lean Financial Operations" — 250+ connectors, AI that misreads invoices</div>
+          <div class="bc-tile-tags">Mid-Market · 250+ Connectors · Horizontal</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+        <!-- Quadient -->
+        <div class="bc-tile" data-threat="easy" onclick="openBCModal('bc-modal-quadient')">
+          <div class="bc-tile-threat easy">🟢 Easier Win</div>
+          <div class="bc-tile-name">Quadient AP (Beanworks)</div>
+          <div class="bc-tile-tagline">Legacy "Human-in-the-Loop" AP — part of Quadient's diversified suite</div>
+          <div class="bc-tile-tags">HITL Model · Mid-Enterprise · Legacy</div>
+          <div class="bc-tile-cta">View Details ›</div>
+        </div>
+
+      </div><!-- /bc-grid -->
+
+      <!-- ── MODALS ── -->
+
+      <div class="bc-modal-overlay" id="bc-modal-avid" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>AvidExchange</h3><p>Middle Market AP Ecosystem — integration moat + payment network</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-avid')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-avid-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-avid-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-avid-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-avid-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-avid-pitch">
+              <h4>Their Core Claim</h4><p>20 years of ecosystem-building created a "significant competitive moat" — 225+ ERP integrations and a 1.3M-supplier AvidPay Network. They win deals on lock-in, not product quality.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>Emphasize deep vertical integration history in Real Estate, HOA, and Media.</li><li>Push "AvidPay Network" as a built-in supplier payment method that saves customers from managing vendor bank details.</li><li>Frame "100% digital invoice" processing as transformational for companies still using paper.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-avid-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ Poor customer support — #1 G2 con (24 mentions); "slow, not great to work with when you have issues"</li><li>⚠ Payment delays — #2 complaint (16 mentions); payments take 3–5 weeks, vendors call constantly</li><li>⚠ Vendor harassment — AvidExchange pressures suppliers to accept vCards; "has made some vendors upset"</li><li>⚠ Human-gated processing — their "99.2% accuracy" relies on human indexers who make mistakes</li><li>⚠ Header-level rules only — cannot route invoices based on line-item GL codes</li><li>⚠ Business model conflict — earns revenue from supplier fees on AvidPay Network</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-avid-win">
+              <h4>Win Moves</h4><ul><li><strong>Lead with G2 support gap (9.0 vs 7.8):</strong> "Users report 3–5 week payment delays and their payment team harasses vendors. Ask for a reference from an AvidExchange customer in hospitality."</li><li><strong>Expose the "AI" myth:</strong> "Their 99.2% accuracy isn't AI — it's humans. Ottimate's Instant Capture AI processes invoices in seconds with 95% line-item accuracy."</li><li><strong>Vertical depth disqualifier:</strong> "Can AvidExchange perform catalog-level validation on a SKU or Split Case invoice? Ottimate can."</li><li><strong>Line-item routing play:</strong> "AvidExchange's approval rules operate at the header level. Ottimate routes based on line-item GL codes."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-avid-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>International Payments:</strong> AvidExchange has a Wise partnership for cross-border. Ottimate is more limited internationally.</li><li><strong>Integration Ecosystem Size:</strong> 225+ integrations vs. Ottimate's current marketplace — a gap for prospects on niche/legacy ERPs.</li><li><strong>Brand Recognition in Mid-Market:</strong> Publicly traded, known brand. Ottimate (formerly Plate IQ) may face recognition gaps in new verticals.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect's ERP vendor has an existing AvidExchange referral relationship</li><li>✗ Prospect is in Real Estate or HOA — AvidExchange's strongest verticals</li><li>✗ Prospect prioritizes payment network scale over invoice intelligence</li></ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="battlecard">
-        <div class="bc-header"><h3>vs. Tipalti</h3><span class="bc-vs">Global payments-focused competitor</span></div>
-        <div class="bc-body">
-          <div class="bc-col bc-they"><h4>Their Strengths</h4><ul><li>Global payment processing and compliance</li><li>Multi-currency support</li><li>Strong for companies with international vendors</li><li>Supplier onboarding portal</li></ul></div>
-          <div class="bc-col bc-we"><h4>Ottimate Wins</h4><ul><li>Superior invoice capture and line-item AI</li><li>Industry-specific features (DSD, cost file, hospitality workflows)</li><li>Deeper GL coding automation</li><li>10+ year head start in invoice AI</li><li>More suited for domestic mid-market complexity</li></ul></div>
-          <div class="bc-col bc-say"><h4>What to Say</h4><ul><li>"Tipalti is built around global payments. If your pain is domestic invoice complexity — multiple vendors, DSD, price catalogs, GL coding — Ottimate is the purpose-built solution."</li><li>"Their invoice intelligence doesn't match 10+ years of deep learning focused specifically on AP."</li></ul></div>
+      <div class="bc-modal-overlay" id="bc-modal-bill" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Bill.com (BILL)</h3><p>SMB Financial Platform — accountant channel, 7.1M network members</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-bill')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-bill-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-bill-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-bill-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-bill-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-bill-pitch">
+              <h4>Their Core Claim</h4><p>"Make it simple to connect and do business." $1.5B revenue, 8,000+ accounting firm partners, and 7.1M network members create a trusted-advisor-led sales channel that's difficult to displace.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>Aggressively markets to accountants — the accountant becomes the sales rep for their entire client base.</li><li>Network effects: Once vendors and clients are in the BILL network, leaving means re-onboarding your entire vendor set.</li><li>AR + AP combined: BILL covers both AP and AR in one platform — something Ottimate doesn't currently offer.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-bill-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ Per-transaction + per-user pricing — costs spike as volume grows; "nickel and diming"</li><li>⚠ Float model — holds payment funds for days before vendor receives; earns interest on customer money</li><li>⚠ Sync errors with QuickBooks — duplicate entries, reconciliation headaches</li><li>⚠ Header-level only — no line-item GL coding or price-catalog validation</li><li>⚠ No vertical depth — built for horizontal SMB, not industry-specific invoice complexity</li><li>⚠ Limited approval workflows — basic routing, not configurable for multi-location or multi-department</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-bill-win">
+              <h4>Win Moves</h4><ul><li><strong>Target accountants directly:</strong> "We know many accountants default to BILL — but those managing complex clients waste hours on sync errors. Ottimate's sync works instantly. Our G2 support is rated 1.0 point higher."</li><li><strong>"Truth in Payments" attack:</strong> "BILL takes funds from your account the day you submit, then holds it for days before paying your vendor. They earn float interest on your money. Ottimate never slows down vendor payments."</li><li><strong>Flat fee vs. death by a thousand cuts:</strong> "BILL charges per user AND per transaction AND extra for ACH/check. Ottimate is flat-rate — unlimited users, unlimited transactions, one predictable monthly fee."</li><li><strong>Line-item complexity disqualifier:</strong> "If you process invoices with SKU-level coding, multi-location GL routing, or price catalog matching — BILL can't do any of that."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-bill-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>No AR:</strong> BILL offers combined AP + AR. Ottimate is AP-only. Prospects wanting a single solution for both lose by default on scope.</li><li><strong>Accounting Firm Channel:</strong> 8,000+ firm partners actively recommending BILL. Deals sourced via accountants can be pre-biased before Ottimate enters.</li><li><strong>Brand Name Recognition:</strong> BILL is a household name in SMB finance. Ottimate has a rebranding story to tell.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect's accountant has a pre-existing BILL relationship</li><li>✗ Prospect needs AR in addition to AP</li><li>✗ Prospect is a simple SMB with no line-item complexity — BILL's feature set is sufficient</li></ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="battlecard">
-        <div class="bc-header"><h3>vs. Stampli</h3><span class="bc-vs">Collaborative invoice management competitor</span></div>
-        <div class="bc-body">
-          <div class="bc-col bc-they"><h4>Their Strengths</h4><ul><li>Collaborative invoice approval interface</li><li>Bidirectional ERP sync</li><li>User-friendly for non-finance staff</li><li>Good customer support reputation</li></ul></div>
-          <div class="bc-col bc-we"><h4>Ottimate Wins</h4><ul><li>10+ years of purpose-built AP deep learning AI</li><li>Line-item level extraction vs. header-level</li><li>Industry-specific vertical expertise</li><li>Cost file and price catalog matching</li><li>DSD Receiving capability</li><li>Proven faster and more accurate than LLM-based approaches</li></ul></div>
-          <div class="bc-col bc-say"><h4>What to Say</h4><ul><li>"Stampli does collaborative approval well. But if your biggest problem is invoice intelligence — catching price discrepancies, auto-coding GL, matching line items — our AI is in a different league."</li><li>"10+ years of training on real AP data, specifically in your industry, gives us accuracy no newer AI can match."</li></ul></div>
+      <div class="bc-modal-overlay" id="bc-modal-stampli" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Stampli</h3><p>Pure-Play AP Automation — "built by AP experts," in-house ERP integrations</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-stampli')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-stampli-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-stampli-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-stampli-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-stampli-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-stampli-pitch">
+              <h4>Their Core Claim</h4><p>"Highest ease of setup rating on G2 among AP providers." ERP integrations are built in-house, not outsourced — directly attacking Ottimate's most commonly cited weakness: integration difficulty.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"We were built by AP experts, for AP teams — not by a payments company that bolted on AP." They position Ottimate's origin as a restaurant tech company as a limitation for general finance teams.</li><li>"Billy the Bot" is their AI differentiator — framed as an AI "employee" embedded in every approval workflow who learns your patterns over time.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-stampli-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ "Billy the Bot" fails on recurring invoices — "quite maddening when the wrong information gets populated" — consistent AI reliability complaints</li><li>⚠ Missing Features — 100 G2 mentions as top con; gaps in advanced workflow functionality</li><li>⚠ Batch processing limitation — "significant limitation" processing invoices one-by-one</li><li>⚠ Technical Issues and Approval Issues flagged consistently across G2 reviews</li><li>⚠ No vertical depth — horizontal only; no price-catalog matching or SKU-level coding</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-stampli-win">
+              <h4>Win Moves</h4><ul><li><strong>"Billy is a Bot. Otti is a Copilot."</strong> "Billy fills in fields. Otti watches for anomalies, flags overcharges, and advises your team before issues hit close."</li><li><strong>Expose the batch processing gap:</strong> "Stampli's users report it's 'a significant limitation' — approvals go one by one. Ottimate handles complex multi-location batch approvals natively."</li><li><strong>PO price-catalog disqualifier:</strong> "Stampli matches invoices to POs. But can it validate each line's price against your pre-negotiated price catalog to catch vendor overcharges? Ottimate can."</li><li><strong>Vertical depth vs. horizontal generic:</strong> "Stampli is built for any finance team. Ottimate is built for your industry — restaurants, hospitality, construction, grocery."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-stampli-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>Ease of Setup &amp; G2 Scores:</strong> Stampli's ease of setup (9.4) and support (9.7) scores are objectively higher. Don't lead with G2 in a Stampli deal — lead with vertical depth and functional capability.</li><li><strong>ERP Integration Perception:</strong> Stampli's "in-house, built-to-completion" ERP integration messaging directly attacks Ottimate's user-reported integration difficulties.</li><li><strong>Customer Support Perception:</strong> Stampli's 9.7 G2 support score is industry-leading. Handle support comparisons with reference calls.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect has heard about Ottimate's integration issues and Stampli's "in-house ERP" messaging resonates</li><li>✗ Prospect is a horizontal, non-vertical company with no industry-specific invoice complexity</li><li>✗ Prospect heavily weights G2 scores — Stampli wins on ease of setup and support metrics</li></ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="battlecard">
-        <div class="bc-header"><h3>vs. AvidXchange</h3><span class="bc-vs">Mid-market AP automation competitor</span></div>
-        <div class="bc-body">
-          <div class="bc-col bc-they"><h4>Their Strengths</h4><ul><li>Established mid-market brand</li><li>Large payment network</li><li>Strong in real estate and construction</li><li>End-to-end AP platform</li></ul></div>
-          <div class="bc-col bc-we"><h4>Ottimate Wins</h4><ul><li>Superior AI for food, beverage, and hospitality invoice complexity</li><li>DSD Receiving — purpose-built for grocery and retail</li><li>Line-item level GL coding automation</li><li>Cost file / price catalog matching</li><li>Industry depth in restaurants, hospitality, grocery, senior living, healthcare</li></ul></div>
-          <div class="bc-col bc-say"><h4>What to Say</h4><ul><li>"AvidXchange is strong in real estate and construction. If you're in food, grocery, hospitality, or senior living — Ottimate's AI was built specifically for the invoice complexity of your industry."</li><li>"Line-item level intelligence that catches DSD price discrepancies — that's not in AvidXchange's DNA."</li></ul></div>
+      <div class="bc-modal-overlay" id="bc-modal-ramp" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Ramp</h3><p>Spend Management Platform — corporate card with bundled "lite" AP</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-ramp')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-ramp-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-ramp-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-ramp-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-ramp-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-ramp-pitch">
+              <h4>Their Core Claim</h4><p>All-in-one spend platform: corporate cards, invoices, and reimbursements unified in one tool. "Freemium" Bill Pay lowers the barrier to adoption. High G2 scores — but ratings come primarily from corporate card users, not AP-heavy users.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"Why pay for a standalone AP tool when your finance team already uses Ramp for expenses and cards? Add Bill Pay for free and consolidate your stack."</li><li>Ramp is investing heavily in AP — they will continue to close the feature gap over time.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-ramp-voc">
+              <h4>Top G2 / TrustRadius Complaints (AP-specific)</h4><ul><li>⚠ "Falls short when businesses need robust AP automation, advanced workflows, or P2P" — verified G2 review from AP users</li><li>⚠ Missing Features (100 G2 mentions); Card Issues (99 mentions); Approval Issues (87 mentions)</li><li>⚠ Manual data re-entry — "I have to re-enter every transaction manually" due to integration failures</li><li>⚠ No price-catalog PO matching — can match invoices to POs but cannot validate line prices against pre-negotiated catalogs</li><li>⚠ No vertical depth — built for horizontal spend, not industry-specific invoice complexity</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-ramp-win">
+              <h4>Win Moves</h4><ul><li><strong>Specialist vs. Generalist:</strong> "Ramp is a great corporate card that bundled a 'lite' AP tool. Ottimate is the AP specialist built for complex, high-volume invoices in your industry."</li><li><strong>The PO price-match disqualifier:</strong> "Ramp can match a bill to a PO. But can it validate the price of each line item against your pre-negotiated vendor price catalog — and flag overcharges before they're paid? Ottimate can."</li><li><strong>Qualify early with AP complexity:</strong> "Do you process invoices with complex line-item coding? Multi-location approval routing? Price catalog validation?" Three "yes" answers and Ramp is disqualified.</li><li><strong>AI contrast:</strong> "Ramp has Toby — an internal backend AI nobody talks about. Ottimate has Otti, a proactive copilot that surfaces anomalies and flags duplicates before close."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-ramp-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>No Corporate Card / Expense Management:</strong> Ramp offers cards, expenses, and AP together. Ottimate is AP-only — requiring a separate expense solution.</li><li><strong>User Experience Scores:</strong> Ramp's ease-of-use scores (9.4–9.5) edge out Ottimate's (9.1–9.2). For prospects who weight UX heavily, this can be visible.</li><li><strong>Freemium Entry Point:</strong> Ramp's "free" Bill Pay makes the initial switching cost appear zero — hard to compete with free at the top of funnel.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect already uses Ramp for corporate cards — "consolidate the stack" wins the deal</li><li>✗ Prospect is a horizontal company with low invoice complexity — Ramp's "good enough" AP meets their needs</li><li>✗ CFO is driving (not AP team) — CFOs often prefer a unified spend platform over a specialist AP tool</li></ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="battlecard">
-        <div class="bc-header"><h3>vs. Coupa / SAP Concur</h3><span class="bc-vs">Enterprise spend management (often over-engineered for mid-market)</span></div>
-        <div class="bc-body">
-          <div class="bc-col bc-they"><h4>Their Strengths</h4><ul><li>Full P2P and spend management suite</li><li>Enterprise-grade with deep procurement features</li><li>Strong brand recognition with large enterprises</li><li>Extensive partner ecosystem</li></ul></div>
-          <div class="bc-col bc-we"><h4>Ottimate Wins</h4><ul><li>Right-sized for mid-market — faster time to value</li><li>Fraction of the implementation complexity and cost</li><li>Industry-specific AI (not a generic enterprise tool)</li><li>Faster ROI — weeks to go live, not months or years</li><li>Dedicated support for your vertical's specific needs</li></ul></div>
-          <div class="bc-col bc-say"><h4>What to Say</h4><ul><li>"Coupa is built for Fortune 500 procurement teams with a year to implement. Ottimate is built for mid-market companies that need to be live in weeks, not quarters."</li><li>"You'd be paying for features you'll never use. Ottimate is purpose-built for exactly what you need — AP automation for your industry."</li></ul></div>
+      <div class="bc-modal-overlay" id="bc-modal-tipalti" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Tipalti</h3><p>Global Payments &amp; Mass Payouts — 200+ countries, 120+ currencies</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-tipalti')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-tipalti-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-tipalti-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-tipalti-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-tipalti-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-tipalti-pitch">
+              <h4>Their Core Claim</h4><p>If you need to pay vendors in 200+ countries across 120+ currencies with built-in tax and compliance automation, Tipalti is purpose-built. No competitor has their global payment depth — and they're a licensed payment processor, not just a software layer.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"Ottimate is built for domestic, vertical AP. We're built for companies operating globally."</li><li>Launching "Tipalti AI Assistant" and "AI Agents" — a direct product response to Otti AI Copilot. They're catching up fast on the AI story.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-tipalti-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ Catastrophic implementation failures — 0.5-star G2 review; "known issues" with NetSuite forcing entire approval processes to be redone from scratch</li><li>⚠ ERP sync errors — integrations break and require manual intervention; specifically documented NetSuite 3-way match failures</li><li>⚠ Poor onboarding — "I would not recommend this product due to poor onboarding and customer support"</li><li>⚠ Slow support response — "still waiting on a response" complaints across multiple reviews</li><li>⚠ Implementation delays — "took much longer than expected" (6+ months in documented cases)</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-tipalti-win">
+              <h4>Win Moves</h4><ul><li><strong>"Global Payments vs. Deep Invoice Intelligence":</strong> "Tipalti can pay your vendor in 120 currencies — but Ottimate can catch that vendor overcharging you on line-item pricing. What percentage of your invoices are from international vendors?"</li><li><strong>Lead with implementation risk:</strong> "Tipalti's NetSuite integration has 'known issues' that have forced customers to redo entire approval workflows. Would you like to talk to a reference customer on your ERP?"</li><li><strong>Use the 0.5-star G2 review proactively:</strong> "This is a real, verified customer review. They were forced to redo their entire approval process because of a sync error. In an AP implementation, that's a 6-figure risk."</li><li><strong>AI Copilot ownership:</strong> "Tipalti just launched their AI — Otti has been in production for years. There's a difference between an AI that's been trained on real AP data and one that just launched."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-tipalti-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>International Payments — A Real Gap:</strong> Tipalti's global payment capabilities (200+ countries, 120+ currencies, tax compliance) are genuinely superior. Don't try to win on international payments; redirect to invoice intelligence.</li><li><strong>Mass Payouts / Contractor Payments:</strong> For companies paying hundreds of contractors globally simultaneously, Tipalti's mass payout functionality has no Ottimate equivalent.</li><li><strong>AI Copilot — Closing Gap:</strong> Tipalti's AI Assistant is advancing. The gap between their AI and Otti AI will narrow over time.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect has substantial international vendor base (30%+)</li><li>✗ Prospect is a marketplace or platform paying contractors/creators globally</li><li>✗ Prospect is already deep in Tipalti and switching cost is prohibitive</li></ul>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <div class="bc-modal-overlay" id="bc-modal-coupa" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Coupa</h3><p>Enterprise BSM Platform — procurement + AP + sourcing + contracts</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-coupa')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-coupa-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-coupa-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-coupa-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-coupa-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-coupa-pitch">
+              <h4>Their Core Claim</h4><p>Coupa is the Business Spend Management (BSM) platform for the Global 2000 — integrating sourcing, procurement, AP, expenses, and contracts into a single suite powered by Community Intelligence AI (trained on $6T+ in enterprise spend data).</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"Ottimate is a point solution for AP. Coupa is a platform for total spend visibility and control."</li><li>Community Intelligence: Coupa leverages anonymized spend data from thousands of enterprise customers to provide benchmarks, fraud detection, and supplier insights no standalone AP tool can match at their scale.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-coupa-voc">
+              <h4>Known Weaknesses</h4><ul><li>⚠ Overkill for mid-market — built for the Global 2000; mid-market companies pay enterprise prices for features they'll never use</li><li>⚠ Long, complex implementations — typically run 9–18+ months; high project risk</li><li>⚠ High total cost of ownership — licensing + implementation + ongoing management often requires dedicated internal resources or a SI partner</li><li>⚠ AP is a module, not a specialty — vertical-specific invoice intelligence (SKU-level coding, price catalog matching) is not their focus</li><li>⚠ G2 score ~4.2 — lower than Ottimate's 4.8; enterprise complexity creates user friction</li><li>⚠ Poor fit for hospitality, restaurant, grocery — Coupa's verticals are manufacturing, financial services, and tech</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-coupa-win">
+              <h4>Win Moves</h4><ul><li><strong>"Platform vs. Specialist" — know when each wins:</strong> "Who's driving this decision — Procurement or AP/Finance Operations?" If AP team is driving, Ottimate wins on depth and speed.</li><li><strong>Cost and implementation reality check:</strong> "A Coupa implementation runs 9–18 months and typically requires a system integrator. Ottimate onboards in weeks. If your team needs results this fiscal year, the math is clear."</li><li><strong>Vertical depth vs. horizontal breadth:</strong> "Coupa's Community Intelligence is benchmarked against enterprise manufacturing and tech spend. For restaurants, hospitality, or grocery, your invoice patterns are invisible to them."</li><li><strong>Win the AP team while Procurement evaluates Coupa:</strong> In large deals, Coupa is often being evaluated by Procurement while the AP team hasn't been asked. Win the AP team first.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-coupa-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>Full P2P / Procurement Scope:</strong> Coupa covers sourcing, supplier management, contracts, procurement, and AP. Ottimate is AP-only. For enterprises seeking a single system for all indirect spend governance, Ottimate has a fundamental scope gap.</li><li><strong>Enterprise Spend Analytics:</strong> Coupa's Community Intelligence — trained on $6T+ in enterprise spend — provides benchmarking and supplier risk signals at a scale Ottimate cannot match.</li><li><strong>Enterprise Brand Credibility:</strong> In large enterprise procurement evaluations, Coupa's brand carries weight with the board and C-suite in a way that a vertical AP specialist does not.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Enterprise is doing a full P2P transformation — Coupa is on the shortlist before Ottimate enters</li><li>✗ Procurement team is driving, not AP — Procurement naturally gravitates to full BSM platforms</li><li>✗ IT/Procurement mandates a single vendor for all spend management — Ottimate's AP-only scope is disqualifying</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bc-modal-overlay" id="bc-modal-rillion" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Rillion</h3><p>High-End AP Automation — "Riley" AI, high-volume PO line matching</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-rillion')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-rillion-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-rillion-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-rillion-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-rillion-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-rillion-pitch">
+              <h4>Their Core Claim</h4><p>Sophisticated, highly customizable AP automation for larger companies with complex needs. Capable of matching "hundreds of lines" per PO — a claim specifically aimed at high-volume manufacturing and healthcare environments.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"Riley, your AI Assistant" is a direct product response to Otti AI Copilot — a head-to-head AI war.</li><li>Rillion's "AI Workflow" predicts and recommends approval workflows based on historical data, adapting dynamically without fixed templates.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-rillion-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ Lowest G2 score of all analyzed competitors: 4.2 / 5 (vs Ottimate 4.8) — a full 0.6-point gap</li><li>⚠ Confusing navigation — "I would personally rather a filter than being met with the navigation and requisition handling"</li><li>⚠ Ease of Setup score: 7.9 / 10 — the worst in this competitive set; complex to get running</li><li>⚠ No price-catalog PO matching — can match high volumes of PO lines, but no catalog price validation</li><li>⚠ Riley AI is new — users find the platform complex; "confusing" usability undermines the AI narrative</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-rillion-win">
+              <h4>Win Moves</h4><ul><li><strong>Price-catalog matching — the decisive differentiator:</strong> "Rillion is excellent at matching high-volume POs. But can it validate each line's price against your pre-negotiated price catalog to catch vendor overcharges? Ottimate can."</li><li><strong>G2 scores tell the story:</strong> "Rillion's overall G2 score is 4.2 — the lowest of any AP solution in this category. Their ease of setup is 7.9 — also the lowest. Ottimate is 4.8 and 9.2."</li><li><strong>"AI vs. AI" — proven vs. new:</strong> "Both platforms have an AI Copilot. Otti AI has been deployed in production across hospitality, grocery, and construction. Riley AI is new — and their own users already find the platform 'confusing to navigate.'"</li><li><strong>Vertical expertise play:</strong> "Rillion knows manufacturing. Ottimate knows your industry — restaurants, hotels, and grocery chains. Our AI is trained on the specific invoice formats, SKU structures, and cost file patterns your vendors produce."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-rillion-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>Truly High-Volume PO Matching:</strong> Rillion's claim to match "hundreds of lines" per PO targets enterprises with massive, line-dense purchase orders common in manufacturing.</li><li><strong>Adaptive AI Workflow Engine:</strong> Rillion's "AI Workflow" — which predicts and adapts approval routing without fixed templates — may exceed Ottimate's current rules-based dynamic approvals in some edge cases.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect is in manufacturing or large healthcare — Rillion's target verticals</li><li>✗ Prospect processes truly massive POs (hundreds of lines) and Rillion's high-volume matching claim resonates</li><li>✗ Prospect prioritizes AI workflow adaptability and Rillion's "no templates" story is compelling</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bc-modal-overlay" id="bc-modal-yooz" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Yooz</h3><p>"Lean Financial Operations" — 250+ connectors, AI that misreads invoices</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-yooz')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-yooz-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-yooz-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-yooz-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-yooz-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-yooz-pitch">
+              <h4>Their Core Claim</h4><p>"Widest ERP integration range" — 250+ active connectors. A direct attack on Ottimate's user-reported integration weakness. Also claims "Instant AI-powered performance — no training needed."</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"We connect to 250+ ERPs — whatever your accounting system, we've already built it. No months of custom integration work."</li><li>This is effective positioning against prospects who have heard Ottimate has integration friction.</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-yooz-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ "OCR technology often misreads invoices or struggles with vendor identification" — the core function fails in G2 reviews</li><li>⚠ Claims "no training needed" but users report "steep learning curve" and "confusing" onboarding</li><li>⚠ Crashes and technical issues flagged in multiple G2 reviews</li><li>⚠ Incorrect supplier recognition — system fails to identify known vendors, creating manual cleanup</li><li>⚠ Works on simple invoices, fails on complex industry-specific ones</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-yooz-win">
+              <h4>Win Moves</h4><ul><li><strong>"AI vs. Reality" gap:</strong> "Yooz claims 'instant AI-powered performance — no training needed.' Their own G2 reviewers say 'steep learning curve' and 'confusing onboarding.' And the OCR 'often misreads invoices.' Three marketing claims directly contradicted by customers."</li><li><strong>The OCR paradox:</strong> "Yooz's best feature on TrustRadius is 'Advanced OCR.' Their biggest G2 complaint is that the OCR misreads invoices. It works fine on simple, standard invoices — but your invoices aren't simple."</li><li><strong>Accuracy over connectors:</strong> "250 connectors don't matter if the data going through them is wrong. An integration that syncs misidentified vendors into your ERP creates more work than it saves."</li><li><strong>Killer Question:</strong> "If Yooz's OCR misreads your vendor and syncs incorrect data to all 250 integrations simultaneously — what does that audit trail look like?"</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-yooz-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>Integration Breadth (250+ vs Ottimate):</strong> Yooz's 250+ connector claim is real. If a prospect runs a niche or regional ERP that Ottimate hasn't built, Yooz's breadth is a genuine advantage.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect's ERP is not in Ottimate's supported integrations but is in Yooz's 250+ connector library</li><li>✗ Prospect has already heard about Ottimate's integration challenges and Yooz's messaging resonates</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bc-modal-overlay" id="bc-modal-quadient" onclick="closeBCModal(event,this)">
+        <div class="bc-modal">
+          <div class="bc-modal-hdr"><div><h3>Quadient AP (Beanworks)</h3><p>Legacy "Human-in-the-Loop" AP — part of Quadient's diversified suite</p></div><button class="bc-modal-close" onclick="closeBCModalById('bc-modal-quadient')">✕</button></div>
+          <div class="bc-modal-tabs">
+            <button class="bc-mtab active" onclick="switchBCTab(this,'bcm-quadient-pitch')">Their Pitch</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-quadient-voc')">VoC Weaknesses</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-quadient-win')">Win Moves</button>
+            <button class="bc-mtab" onclick="switchBCTab(this,'bcm-quadient-gaps')">⚠ Our Gaps</button>
+          </div>
+          <div class="bc-modal-body">
+            <div class="bc-mpanel active" id="bcm-quadient-pitch">
+              <h4>Their Core Claim</h4><p>"99% accuracy" — achieved through human verification, not pure AI. Positioned as the "safe" choice for AP departments that don't trust automation without human oversight. Part of Quadient's larger suite (mailing, AR, customer comms) enabling cross-sell.</p>
+              <h4>How They Position Against Ottimate</h4><ul><li>"We verify every invoice with human review — that's why our accuracy is 99%. Fully automated AI systems make mistakes no one catches until it's too late."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-quadient-voc">
+              <h4>Top G2 / TrustRadius Complaints</h4><ul><li>⚠ 6-month implementation — sales promised "within 1 month"; reality was 6 months before payments went live</li><li>⚠ Human verification errors — "capturing mistakes tend to happen... can be quite costly if not caught" — the very humans guaranteeing accuracy are introducing errors</li><li>⚠ 2–3 day support response times — "support often takes 2–3 days to respond"</li><li>⚠ Header-level PO matching only — cannot validate line items against price catalogs</li><li>⚠ Legacy HITL model — introduces the same bottlenecks and human errors AP automation was supposed to eliminate</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-quadient-win">
+              <h4>Win Moves</h4><ul><li><strong>Attack the "human verification" model directly:</strong> "Quadient's 99% accuracy isn't AI — it's humans. And their own users say those humans make mistakes that are 'quite costly if not caught.' Why introduce a human bottleneck that creates the same errors AP automation was supposed to prevent?"</li><li><strong>Implementation timeline weapon:</strong> "Ask their reference customers: how long did implementation really take? Customers report they were promised 1 month — it took 6 months before the first payment went live."</li><li><strong>"Pure AI vs. Legacy" positioning:</strong> "Quadient is a mailing and customer communications company that added AP as a product line. Ottimate is an AI-first AP specialist. Which company woke up this morning thinking about how to make your invoice processing better?"</li><li><strong>Support comparison:</strong> "Quadient support takes 2–3 days to respond. During an AP crisis — a vendor threatening to cut service, a reconciliation error at close — that's unacceptable."</li></ul>
+            </div>
+            <div class="bc-mpanel" id="bcm-quadient-gaps">
+              <h4>Where Ottimate Is Vulnerable</h4><ul><li><strong>Limited Significant Gaps vs. Quadient:</strong> Quadient AP is a legacy, declining competitor. Ottimate should win most head-to-head evaluations. The primary risk is losing visibility in deals where Quadient is shortlisted before Ottimate enters.</li></ul>
+              <h4>Top Reasons Ottimate Loses</h4><ul><li>✗ Prospect is already a Quadient customer (mailing/AR) and uses bundle pricing to expand to AP</li><li>✗ Risk-averse AP team prefers the "human oversight" model and is skeptical of pure-AI accuracy claims</li><li>✗ Ottimate never enters the evaluation — Quadient's cross-sell motion locks the deal before competitive evaluation begins</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ref-battlecards -->
     <div class="ref-panel" id="ref-roadmap">
       <div class="card" style="background:linear-gradient(135deg,#EBF5FB,#E8F8F5);border:2px solid var(--navy);">
         <div class="card-title" style="color:var(--navy);">🏅 Ottimate Certification Roadmap</div>
@@ -2164,7 +2654,11 @@ function selectExamAnswer(qIdx, optIdx) {
   const q = EXAM_QUESTIONS[qIdx];
   for (let j = 0; j < q.options.length; j++) {
     const el = document.getElementById(`eopt-${qIdx}-${j}`);
-    if (el) el.classList.toggle('selected', j === optIdx);
+    if (el) {
+      el.classList.toggle('selected', j === optIdx);
+      const radio = el.querySelector('input[type="radio"]');
+      if (radio) radio.checked = (j === optIdx);
+    }
   }
 }
 
@@ -2236,13 +2730,57 @@ function switchRefTab(btn, panelId) {
   document.getElementById(panelId).classList.add('active');
 }
 
+// ── BATTLECARD GRID FUNCTIONS ──
+function filterBattlecards(threat, btn) {
+  document.querySelectorAll('.bc-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.bc-tile').forEach(tile => {
+    tile.style.display = (threat === 'all' || tile.dataset.threat === threat) ? '' : 'none';
+  });
+}
+function openBCModal(id) {
+  const m = document.getElementById(id);
+  if (m) { m.classList.add('bc-open'); document.body.style.overflow = 'hidden'; }
+}
+function closeBCModal(e, overlay) {
+  if (e.target === overlay) { overlay.classList.remove('bc-open'); document.body.style.overflow = ''; }
+}
+function closeBCModalById(id) {
+  const m = document.getElementById(id);
+  if (m) { m.classList.remove('bc-open'); document.body.style.overflow = ''; }
+}
+function switchBCTab(btn, panelId) {
+  const modal = btn.closest('.bc-modal');
+  modal.querySelectorAll('.bc-mtab').forEach(b => b.classList.remove('active'));
+  modal.querySelectorAll('.bc-mpanel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+function toggleDQCard(id) {
+  const card = document.getElementById(id);
+  if (card) card.classList.toggle('open');
+}
+
+function printRefMaterials() {
+  // Temporarily make all ref panels visible for printing
+  const panels = document.querySelectorAll('.ref-panel');
+  panels.forEach(p => p.style.display = 'block');
+  document.body.classList.add('printing-refs');
+  window.print();
+  document.body.classList.remove('printing-refs');
+  // Restore — only the active panel should show
+  panels.forEach(p => { p.style.display = ''; });
+  document.querySelectorAll('.ref-panel.active').forEach(p => p.style.display = 'block');
+}
+
 
 // Base exam questions — Accounting, Meet Ottimate, Persona (15 total, no verticals)
 const EXAM_QUESTIONS_BASE = [
   { q:"What does 'GL' stand for in accounting?", options:["General Ledger","Gross Liabilities","Government Ledger","General Listing"], correct:0, cat:"Accounting Fundamentals" },
   { q:"Which financial statement shows a snapshot of a company's financial position at a specific point in time?", options:["Income Statement","Cash Flow Statement","Balance Sheet","Trial Balance"], correct:2, cat:"Accounting Fundamentals" },
   { q:"In double-entry accounting, what must every journal entry do?", options:["Include at least three accounts","Net to zero (debits = credits)","Be approved by a manager first","Be recorded in the ERP automatically"], correct:1, cat:"Accounting Fundamentals" },
-  { q:"What is a three-way match in accounts payable?", options:["Three approvals required before payment","Matching invoice to three different GL codes","Matching the invoice, PO, and receiving report","Comparing three vendor quotes for the same item"], correct:2, cat:"Accounting Fundamentals" },
+  { q:"In accounting, what does 'accrual basis' mean?", options:["Transactions are recorded when cash is received or paid","Transactions are recorded when they occur, regardless of when cash moves","Only transactions over $500 are recorded","Transactions are recorded at the end of each fiscal quarter"], correct:1, cat:"Accounting Fundamentals" },
   { q:"What security certification does Ottimate hold that demonstrates its data controls have been independently verified over time?", options:["ISO 27001","PCI DSS Level 1","Type 2 SOC 1 and SOC 2","HIPAA Certified"], correct:2, cat:"Accounting Fundamentals" },
   { q:"What company was Ottimate originally founded as?", options:["APAutomation Inc.","InvoiceAI","Plate IQ","PaymentPro"], correct:2, cat:"Meet Ottimate" },
   { q:"What percentage of the payables accounting process does Ottimate automate?", options:["Over 50%","Over 70%","Over 80%","Over 90%"], correct:3, cat:"Meet Ottimate" },
@@ -2348,9 +2886,9 @@ const QUIZ_DATA = {
     { q: "In double-entry accounting, what must every journal entry do?",
       options: ["Include at least three accounts","Net to zero (debits = credits)","Be approved by a manager first","Be recorded in the ERP automatically"],
       correct: 1, explanation: "Every journal entry must have debits and credits that net to zero — two sides to every transaction." },
-    { q: "What is a three-way match in accounts payable?",
-      options: ["Three approvals required before payment","Matching invoice to three different GL codes","Matching the invoice, PO, and receiving report","Comparing three vendor quotes for the same item"],
-      correct: 2, explanation: "A three-way match compares the invoice, purchase order (PO), and receiving report to ensure all three documents align before payment." },
+    { q: "In accounting, what does 'accrual basis' mean?",
+      options: ["Transactions are recorded when cash is received or paid","Transactions are recorded when they occur, regardless of when cash moves","Only transactions over $500 are recorded","Transactions are recorded at the end of each fiscal quarter"],
+      correct: 1, explanation: "Accrual basis accounting records revenues and expenses when they are earned or incurred — not when cash changes hands. This gives a more accurate picture of a company's financial health and is required for GAAP-compliant reporting." },
     { q: "What security certification does Ottimate hold that demonstrates its data controls have been independently verified over time?",
       options: ["ISO 27001","PCI DSS Level 1","Type 2 SOC 1 and SOC 2","HIPAA Certified"],
       correct: 2, explanation: "Ottimate is Type 2 SOC 1 and SOC 2 certified — meaning an independent auditor verified controls are in place AND working effectively over time." }
