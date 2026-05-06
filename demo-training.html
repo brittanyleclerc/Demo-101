@@ -1424,14 +1424,20 @@ function submitInlineQuiz(moduleNum) {
   }
   const resultEl = document.getElementById(`iq-result-${moduleNum}`);
   resultEl.style.display = 'block';
+  const nextActionBtn = passed
+    ? (moduleNum < 3
+        ? `<button class="btn btn-primary" style="margin-top:1rem;" onclick="showModule(${moduleNum+1})">Continue to Module ${moduleNum+1}: ${MODULE_NAMES[moduleNum+1]} →</button>`
+        : `<button class="btn btn-primary" style="margin-top:1rem;" onclick="tryExam()">🎓 Take the Final Exam →</button>`)
+    : `<button class="btn btn-secondary" style="margin-top:1rem;" onclick="retakeInlineQuiz(${moduleNum})">↩ Retake Quiz</button>`;
   resultEl.innerHTML = `<div style="text-align:center;padding:1.5rem 1rem;background:${passed?'var(--green-light)':'var(--red-light)'};border-radius:var(--radius);margin-top:1rem;border:2px solid ${passed?'var(--green)':'var(--red)'};">
     <div style="font-size:2rem;font-weight:800;color:${passed?'var(--green)':'var(--red)'};">${score}/${total}</div>
     <div style="font-size:1rem;font-weight:700;margin:0.25rem 0;color:${passed?'var(--green)':'var(--red)'};">${pct}% — ${passed?'PASSED ✅':'NOT PASSED ❌'}</div>
     <p style="font-size:0.875rem;color:var(--gray5);margin:0.5rem 0;">${passed?'Great work! This module is now marked complete.':'You need 80% to pass. Review the content and try again.'}</p>
     ${APP.modulesDone.size >= 3 ? '<p style="color:var(--green);font-weight:700;margin-top:0.75rem;">🏆 All modules complete! The Final Exam is now unlocked.</p>' : ''}
+    ${nextActionBtn}
   </div>`;
   document.getElementById(`iq-submit-${moduleNum}`).style.display = 'none';
-  if (!passed) document.getElementById(`iq-retake-${moduleNum}`).style.display = 'inline-block';
+  if (!passed) document.getElementById(`iq-retake-${moduleNum}`).style.display = 'none';
 }
 
 function retakeInlineQuiz(moduleNum) {
@@ -2901,9 +2907,9 @@ const QUIZ_DATA = {
     { q: "What does Ottimate's Vendor Statement Reconciliation feature do?",
       options: ["Automatically pays all invoices on the vendor's statement","Generates vendor statements on the customer's behalf","Compares the vendor's statement of outstanding balances against your Ottimate records to identify discrepancies","Replaces all paper invoices with electronic vendor statements"],
       correct: 2, explanation: "Vendor Statement Reconciliation compares what the vendor says you owe against your Ottimate records — catching missing invoices, unapplied credits, payment discrepancies, and duplicate charges before they cost you money." },
-    { q: "Which of the following features is covered in a separate Level 3 Ottimate certification — NOT in Core AP + Statements?",
-      options: ["GL coding and vendor mapping rules","Approval workflow configuration","PO Match (2-way and 3-way matching)","Vendor Statement Reconciliation"],
-      correct: 2, explanation: "PO Match (including 2-way matching, 3-way matching, and DSD Receiver Match) is a Level 3 feature with its own dedicated training and certification. Core AP + Statements focuses on invoice capture, GL coding, approval workflows, and vendor statement reconciliation." }
+    { q: "What four data points does Ottimate automatically compare to flag potential duplicate invoices before they're approved?",
+      options: ["Invoice total, payment terms, vendor email, and billing address","Vendor, amount, invoice number, and date","Invoice number, PO number, GL code, and location","Amount, approval status, due date, and payment method"],
+      correct: 1, explanation: "Ottimate automatically compares vendor, amount, invoice number, and date to identify likely duplicates for human review before payment — catching one of the most common and costly AP errors before money leaves the account." }
   ],
   2: [
     { q: "What should be the FIRST step before conducting a product demo?",
