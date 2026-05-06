@@ -2842,8 +2842,8 @@ let examAnswers = {};
 let examSubmitted = false;
 
 function renderExam() {
-  EXAM_QUESTIONS = buildExamQuestions(); // rebuild with current verticals
   if (!APP.examPassed) {
+    EXAM_QUESTIONS = buildExamQuestions(); // only rebuild for new/reset attempts
     examAnswers = {};
     examSubmitted = false;
   }
@@ -3568,6 +3568,7 @@ document.addEventListener('click', function(e) {
       if (s.examScore !== undefined && s.examScore !== null) APP.examScore = s.examScore;
       if (s.examAnswers) examAnswers = s.examAnswers;
       if (s.examSubmitted) examSubmitted = s.examSubmitted;
+      if (s.examQuestions && s.examQuestions.length > 0) EXAM_QUESTIONS = s.examQuestions;
       // Restore identity so returning users skip the welcome screen
       if (s.name && s.role && s.verticals && s.verticals.length > 0) {
         APP.name = s.name;
@@ -3619,6 +3620,17 @@ function saveEditedVerticals() {
     // Reset Module 3 (Industry Verticals) — content and quiz are now different
     APP.modulesDone.delete(3);
     delete APP.quizScores[3];
+    IQ_SUBMITTED[3] = false;
+    IQ_ANSWERS[3] = {};
+    QUIZ_DATA[3] = [];
+
+    // Reset final exam — must be re-taken with the new verticals
+    APP.examPassed = false;
+    APP.examScore = null;
+    APP.certVerticals = [];
+    examAnswers = {};
+    examSubmitted = false;
+    EXAM_QUESTIONS = [];
   }
   saveState();
   closeEditVerticals();
@@ -3628,7 +3640,7 @@ function saveEditedVerticals() {
     // Brief banner to confirm the update
     const banner = document.createElement('div');
     banner.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--teal);color:white;padding:0.65rem 1.5rem;border-radius:8px;font-weight:700;font-size:0.9rem;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.18);';
-    banner.textContent = '✅ Verticals updated — Module 3 has been reset to reflect your new selection.';
+    banner.textContent = '✅ Verticals updated — Module 3 and the Final Exam have been reset to reflect your new selection.';
     document.body.appendChild(banner);
     setTimeout(function(){ banner.remove(); }, 4000);
   }
@@ -3685,7 +3697,8 @@ function saveState() {
       examPassed: APP.examPassed,
       examScore: APP.examScore,
       examAnswers: examAnswers,
-      examSubmitted: examSubmitted
+      examSubmitted: examSubmitted,
+      examQuestions: APP.examPassed ? EXAM_QUESTIONS : undefined
     }));
   } catch(e) {}
 }
