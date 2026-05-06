@@ -357,6 +357,8 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
   font-size: 0.88rem;
 }
 .info-box.tip { border-color: var(--orange); background: var(--orange-light); }
+.info-box.success { border-color: var(--green); background: var(--green-light); }
+.info-box.success .info-box-title { color: var(--green); }
 .info-box.win { border-color: var(--green); background: var(--green-light); }
 .info-box.warn { border-color: var(--red); background: var(--red-light); }
 .info-box-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.2rem; }
@@ -879,21 +881,64 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
 
 /* ── PRINT ── */
 @media print {
-  /* Certificate print — only when the cert screen is active (i.e. exam was passed) */
-  body:not(.printing-refs) > *:not(#screen-certificate) { display: none !important; }
-  body:not(.printing-refs) #screen-certificate:not(.active) { display: none !important; }
-  body:not(.printing-refs) #screen-certificate.active { display: flex !important; padding: 0; }
-  body:not(.printing-refs) .cert-actions { display: none !important; }
-  body:not(.printing-refs) .certificate { box-shadow: none; }
-  /* Ref materials print mode */
-  body.printing-refs .sidebar,
-  body.printing-refs .topbar,
-  body.printing-refs .back-link,
-  body.printing-refs .ref-tabs,
-  body.printing-refs .btn,
-  body.printing-refs #screen-certificate { display: none !important; }
-  body.printing-refs .ref-panel { display: block !important; }
-  body.printing-refs .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  /* Certificate print — only when cert screen is active and NOT in tab-print mode */
+  body:not(.printing-tab) > *:not(#screen-certificate) { display: none !important; }
+  body:not(.printing-tab) #screen-certificate:not(.active) { display: none !important; }
+  body:not(.printing-tab) #screen-certificate.active { display: flex !important; padding: 0; }
+  body:not(.printing-tab) .cert-actions { display: none !important; }
+  body:not(.printing-tab) .certificate { box-shadow: none; }
+
+  /* Per-tab print mode — break out of fixed/overflow-hidden shell */
+  body.printing-tab #app-shell {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important;
+  }
+  body.printing-tab .app-body {
+    overflow: visible !important;
+    height: auto !important;
+    display: block !important;
+  }
+  body.printing-tab .main-area {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    display: block !important;
+    padding: 0.5rem !important;
+  }
+  body.printing-tab .app-header, body.printing-tab .sidebar, body.printing-tab .back-link,
+  body.printing-tab .ref-tabs, body.printing-tab .page-hero, body.printing-tab .bc-filters,
+  body.printing-tab .bc-grid, body.printing-tab .bc-modal-overlay,
+  body.printing-tab .print-tab-btn, body.printing-tab #screen-certificate,
+  body.printing-tab #screen-welcome, body.printing-tab .ref-no-print { display: none !important; }
+  body.printing-tab .ref-panel { display: none !important; }
+  body.printing-tab .ref-panel[data-printing] { display: block !important; }
+  body.printing-tab .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; margin-bottom: 0.75rem; }
+
+  /* Discovery Questions: expand all card bodies */
+  body.printing-tab .dq-card-body { display: block !important; }
+  body.printing-tab .dq-chevron, body.printing-tab .dq-card-count { display: none !important; }
+  body.printing-tab .dq-q { border-bottom: 1px solid #eee; padding: 0.4rem 0.6rem; font-size: 0.88rem; }
+  body.printing-tab .dq-q.dq-selected { background: #e8f4fd; }
+  body.printing-tab .dq-card-header { background: #e8f4fd; border-radius: 6px 6px 0 0; padding: 0.5rem 0.75rem; font-weight: 700; }
+
+  /* Objection Handler: expand all obj-a panels */
+  body.printing-tab .obj-a { display: block !important; }
+  body.printing-tab .obj-q::after { content: none !important; }
+
+  /* Industry Verticals: each vertical on its own page */
+  body.printing-tab .ref-panel[data-printing] .vcontent { display: block !important; break-after: page; }
+  body.printing-tab .ref-panel[data-printing] .vcontent:last-of-type { break-after: avoid; }
+  body.printing-tab .ref-panel[data-printing] .vertical-tabs { display: none !important; }
+
+  /* Battlecard print section */
+  body.printing-tab .bc-print-section { display: block !important; }
+  body.printing-tab .bc-print-grid { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  body.printing-tab .bc-print-card { break-inside: avoid; border: 1px solid #ccc; border-radius: 6px; padding: 0.6rem; font-size: 0.82rem; }
+  body.printing-tab .bc-print-card h4 { font-size: 0.9rem; margin-bottom: 0.25rem; }
+  body.printing-tab .bc-print-card ul { padding-left: 1rem; margin: 0.2rem 0; }
+  body.printing-tab .bc-print-card li { font-size: 0.8rem; line-height: 1.4; }
 }
 
 /* ── RESPONSIVE ── */
@@ -1982,9 +2027,10 @@ function renderRef() {
       <button class="ref-tab active" onclick="switchRefTab(this,'ref-cheat')">📝 Quick Reference</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-discovery')">🔍 Discovery Questions</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-objections')">🛡️ Objection Handler</button>
+      <button class="ref-tab" onclick="switchRefTab(this,'ref-verticals')">🗂️ Industry Verticals</button>
       <button class="ref-tab" onclick="switchRefTab(this,'ref-battlecards')">⚔️ Battlecards</button>
-    
-      <button class="ref-tab" onclick="switchRefTab(this,'ref-roadmap')">🏅 Certification Roadmap</button></div>
+      <button class="ref-tab" onclick="switchRefTab(this,'ref-roadmap')">🏅 Certification Roadmap</button>
+    </div>
 
     <!-- QUICK REFERENCE -->
     <div class="ref-panel active" id="ref-cheat">
@@ -1992,7 +2038,7 @@ function renderRef() {
       <div class="card">
         <div class="flex justify-between items-center mb-2">
           <div class="card-title" style="margin:0;border:none;padding:0;">🏢 Ottimate At-a-Glance</div>
-          <button class="btn btn-secondary btn-sm" onclick="printRefMaterials()">🖨️ Print Reference Materials</button>
+          <button class="btn btn-secondary btn-sm print-tab-btn" onclick="printTab('ref-cheat')">🖨️ Print Quick Reference</button>
         </div>
         <div class="stat-grid">
           <div class="stat-box"><div class="stat-num">>90%</div><div class="stat-lbl">AP process automated</div></div>
@@ -2082,7 +2128,10 @@ function renderRef() {
     <!-- DISCOVERY QUESTIONS -->
     <div class="ref-panel" id="ref-discovery">
       <div class="card">
-        <div class="card-title">🔍 Discovery Question Bank</div>
+        <div class="flex justify-between items-center mb-2">
+          <div class="card-title" style="margin:0;border:none;padding:0;">🔍 Discovery Question Bank</div>
+          <button class="btn btn-secondary btn-sm print-tab-btn" onclick="printTab('ref-discovery')">🖨️ Print Discovery Questions</button>
+        </div>
         <p class="body-text" style="margin-bottom:1.25rem;">Click any category to expand and reveal the questions. Select individual questions to highlight them for use during calls.</p>
         <div id="dq-accordion">
 
@@ -2223,7 +2272,10 @@ function renderRef() {
     <!-- OBJECTION HANDLER -->
     <div class="ref-panel" id="ref-objections">
       <div class="card">
-        <div class="card-title">🛡️ Objection Handling Guide</div>
+        <div class="flex justify-between items-center mb-2">
+          <div class="card-title" style="margin:0;border:none;padding:0;">🛡️ Objection Handling Guide</div>
+          <button class="btn btn-secondary btn-sm print-tab-btn" onclick="printTab('ref-objections')">🖨️ Print Objection Handler</button>
+        </div>
         <p class="body-text mb-2">Click any objection to see the recommended response.</p>
         <div class="obj-item"><div class="obj-q" onclick="toggleObj(this)">"We already have a system that works."</div><div class="obj-a"><strong>Acknowledge + Discovery:</strong> "That's great — sounds like you've made progress. I'm curious: what's still manual? Do you catch every price discrepancy? How long does month-end close take?" Most existing systems lack line-item AI, industry-specific matching, and real-time multi-location visibility. Find the gaps. <em>Bridge:</em> "Most of our customers had 'something in place' before Ottimate — what changed was the level of automation and accuracy."</div></div>
         <div class="obj-item"><div class="obj-q" onclick="toggleObj(this)">"Your price is too high."</div><div class="obj-a"><strong>Reframe to ROI:</strong> "I hear you — let's make sure we're comparing the full picture. If Ottimate saves your team 15 hours/week and catches $80K in vendor overcharges this year, what's the ROI?" Then offer a formal ROI analysis. Most deals where price is the objection close when ROI is properly quantified. <em>Also consider:</em> cashback on payments can offset Ottimate's cost significantly.</div></div>
@@ -2239,7 +2291,10 @@ function renderRef() {
     <!-- BATTLECARDS -->
     <div class="ref-panel" id="ref-battlecards">
       <div class="card" style="background:#FFF3CD;border:2px solid var(--orange);margin-bottom:1rem;">
-        <div class="info-box-title" style="color:var(--orange);">⚠️ Internal Use Only — Verify Before Using in Customer Conversations</div>
+        <div class="flex justify-between items-center">
+          <div class="info-box-title" style="color:var(--orange);">⚠️ Internal Use Only — Verify Before Using in Customer Conversations</div>
+          <button class="btn btn-secondary btn-sm print-tab-btn" onclick="printTab('ref-battlecards')">🖨️ Print Battlecards</button>
+        </div>
         <p style="font-size:0.85rem;margin-top:0.35rem;">These battlecards are based on publicly available competitor information and should be reviewed by your sales leadership or product team for accuracy. Competitive positioning changes — always verify current information before using in deals.</p>
       </div>
 
@@ -2591,7 +2646,102 @@ function renderRef() {
         </div>
       </div>
 
+      <!-- BATTLECARD PRINT SECTION — hidden on screen, visible only during print -->
+      <div class="bc-print-section" style="display:none;">
+        <div class="card" style="margin-bottom:0.75rem;">
+          <div class="card-title" style="margin-bottom:0.5rem;">⚔️ Competitive Battlecard Reference — All 9 Competitors</div>
+          <p style="font-size:0.82rem;color:#666;margin-bottom:0.75rem;font-style:italic;">Internal use only. Verify before using in customer conversations.</p>
+          <div class="bc-print-grid">
+
+            <div class="bc-print-card" style="border-left:4px solid #E74C3C;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>AvidExchange</h4><span style="font-size:0.75rem;color:#E74C3C;font-weight:700;">🔴 HIGH THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Middle Market AP Ecosystem — 225+ integrations &amp; AvidPay Network · Real Estate · HOA · Mid-Market</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">20-year ecosystem moat — 225+ ERP integrations and 1.3M-supplier AvidPay Network. Wins on lock-in, not product quality.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>Poor support (#1 G2 con) — "slow, not great to work with when you have issues"</li><li>Payment delays 3–5 weeks; vendor harassment to accept vCards</li><li>"99.2% accuracy" relies on human indexers, not AI — header-level rules only</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>Expose support gap (G2: 9.0 vs 7.8) — ask for a hospitality reference</li><li>"Their accuracy isn't AI — it's humans. Ottimate Instant Capture AI in seconds."</li><li>Disqualify: "Can AvidExchange do catalog-level validation on a SKU invoice?"</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">International payments (Wise partnership) and 225+ integration ecosystem size.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #E74C3C;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Bill.com (BILL)</h4><span style="font-size:0.75rem;color:#E74C3C;font-weight:700;">🔴 HIGH THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">SMB Financial Platform — 7.1M network members · SMB · Accountant Channel · Horizontal</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">$1.5B revenue, 8,000+ accounting firm partners. Accountants drive sales — network effects make leaving painful.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>Per-transaction + per-user pricing — costs spike at scale</li><li>Float model — holds funds before paying vendors; earns interest on customer money</li><li>Header-level only — no line-item GL coding or price-catalog validation</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>Flat fee vs. "death by a thousand cuts" — unlimited users &amp; transactions</li><li>"Truth in Payments": BILL holds your money for days earning float interest</li><li>Line-item complexity disqualifier: SKU coding, multi-location routing, price catalogs</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">No AR offering. 8,000+ accounting firm partners pre-bias prospects before we enter.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #E74C3C;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Stampli</h4><span style="font-size:0.75rem;color:#E74C3C;font-weight:700;">🔴 HIGH THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Pure-Play AP Automation — in-house ERP integrations · Pure AP · In-House ERP · Horizontal</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">"Highest ease of setup on G2." In-house ERP integrations directly attack Ottimate's integration perception weakness.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>"Billy the Bot" fails on recurring invoices — consistent AI reliability complaints</li><li>Batch processing limitation — invoices processed one-by-one</li><li>No vertical depth — horizontal only; no price-catalog matching or SKU-level coding</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>"Billy fills fields. Otti watches for anomalies and flags overcharges."</li><li>Expose batch gap: "approvals go one-by-one" — Ottimate handles complex multi-location batch</li><li>PO price-catalog disqualifier: Stampli matches POs; can't validate against price catalog</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">G2 ease-of-setup (9.4) and support (9.7) scores are objectively higher. Don't lead with G2.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #F39C12;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Ramp</h4><span style="font-size:0.75rem;color:#F39C12;font-weight:700;">🟡 MEDIUM THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Spend Management Platform — corporate card with bundled "lite" AP · Spend Mgmt · Corporate Card</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">All-in-one spend platform: cards + invoices + reimbursements. "Free" Bill Pay lowers switching barrier.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>"Falls short for robust AP automation, advanced workflows, or P2P"</li><li>Manual re-entry due to integration failures</li><li>No price-catalog PO matching or vertical depth</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>Specialist vs. Generalist — Ramp is a great card that bundled a "lite" AP tool</li><li>PO price-match disqualifier: can Ramp validate line prices against contracted catalog?</li><li>Qualify with AP complexity: SKU coding? Multi-location routing? Price catalogs? 3 yes = win</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">No corporate card/expense management. Ramp's "free" Bill Pay makes initial cost appear zero.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #F39C12;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Tipalti</h4><span style="font-size:0.75rem;color:#F39C12;font-weight:700;">🟡 MEDIUM THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Global Payments &amp; Mass Payouts — 200+ countries, 120+ currencies · Mid-Market · International</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">Purpose-built for global payments in 200+ countries — a licensed payment processor with genuine international depth.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>Catastrophic implementation failures — known NetSuite 3-way match issues</li><li>Poor onboarding and slow support response</li><li>Implementation delays — 6+ months in documented cases</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>Lead with implementation risk: "known issues" forced customers to redo entire workflows</li><li>"Tipalti pays in 120 currencies — Ottimate catches that vendor overcharging on pricing"</li><li>AI ownership: Otti has years in production; Tipalti AI just launched</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">Global payments (200+ countries) and mass payouts are genuinely superior — redirect to invoice intelligence.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #F39C12;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Coupa</h4><span style="font-size:0.75rem;color:#F39C12;font-weight:700;">🟡 MEDIUM THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Enterprise BSM Platform — procurement + AP + sourcing + contracts · Enterprise · Global 2000</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">The BSM platform for Global 2000 — Community Intelligence AI trained on $6T+ in enterprise spend data.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>Overkill for mid-market — enterprise prices for unused features</li><li>Implementations run 9–18+ months; G2 score ~4.2 vs Ottimate 4.8</li><li>Poor fit for hospitality, restaurant, grocery — their verticals are manufacturing and tech</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>Implementation reality: "A Coupa implementation runs 9–18 months. Ottimate onboards in weeks."</li><li>Win the AP team while Procurement evaluates Coupa</li><li>Vertical depth: "Coupa's AI is benchmarked against enterprise manufacturing. Not your industry."</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">Full P2P/procurement scope — Ottimate is AP-only. Enterprise brand credibility in board-level evaluations.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #F39C12;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Rillion</h4><span style="font-size:0.75rem;color:#F39C12;font-weight:700;">🟡 MEDIUM THREAT</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">High-End AP Automation — "Riley" AI, high-volume PO line matching · High-End AP · Manufacturing</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">Sophisticated, customizable AP for large companies. Matches "hundreds of lines" per PO — targeting manufacturing and healthcare.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>Lowest G2 score in category: 4.2 (vs Ottimate 4.8) — worst ease-of-setup: 7.9</li><li>Confusing navigation; "Riley AI" is new with usability complaints</li><li>No price-catalog validation — matches PO lines but can't validate against price catalog</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>G2 scores: "Rillion 4.2, ease-of-setup 7.9. Ottimate 4.8 and 9.2."</li><li>Price-catalog disqualifier: "Rillion matches high-volume POs — but can it validate prices?"</li><li>"Otti AI has been in production for years. Riley AI is new and users find it confusing."</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">Truly high-volume PO matching (hundreds of lines) in manufacturing environments.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #27AE60;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Yooz</h4><span style="font-size:0.75rem;color:#27AE60;font-weight:700;">🟢 EASIER WIN</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">"Lean Financial Operations" — 250+ connectors · Mid-Market · Horizontal</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">"Widest ERP integration range" — 250+ connectors. "Instant AI-powered performance — no training needed."</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>"OCR often misreads invoices" — G2 reviewers contradict the "no training" claim</li><li>Crashes and technical issues; steep learning curve despite marketing claims</li><li>Works on simple invoices, fails on complex industry-specific ones</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>"Three marketing claims directly contradicted by customers" — use G2 reviews</li><li>"250 connectors don't matter if the data going through them is wrong"</li><li>Killer Question: "If Yooz misreads a vendor and syncs wrong data to 250 integrations — what does that audit trail look like?"</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">Integration breadth — 250+ connectors includes niche/regional ERPs Ottimate hasn't built.</p>
+            </div>
+
+            <div class="bc-print-card" style="border-left:4px solid #27AE60;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem;"><h4>Quadient AP (Beanworks)</h4><span style="font-size:0.75rem;color:#27AE60;font-weight:700;">🟢 EASIER WIN</span></div>
+              <p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem;">Legacy "Human-in-the-Loop" AP — Quadient's diversified suite · HITL Model · Mid-Enterprise</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Their Pitch:</p><p style="font-size:0.8rem;margin-bottom:0.4rem;">"99% accuracy" via human verification. The "safe" choice for AP teams skeptical of pure automation.</p>
+              <p style="font-size:0.78rem;font-weight:700;margin-bottom:0.15rem;">Key Weaknesses:</p><ul><li>6-month implementation (promised 1 month) — "quite costly" human errors</li><li>2–3 day support response times</li><li>Legacy HITL model introduces same bottlenecks AP automation was meant to prevent</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;margin-top:0.35rem;margin-bottom:0.15rem;">Win Moves:</p><ul><li>"Their humans guarantee accuracy — and their own users say those humans make mistakes"</li><li>Implementation weapon: "Promised 1 month, took 6 months before first payment went live"</li><li>"Quadient is a mailing company that added AP. Ottimate woke up this morning thinking about your invoice processing."</li></ul>
+              <p style="font-size:0.78rem;font-weight:700;color:#c0392b;margin-top:0.35rem;margin-bottom:0.15rem;">Our Gap:</p><p style="font-size:0.8rem;">Risk: Quadient's cross-sell from mailing/AR locks deals before Ottimate enters evaluation.</p>
+            </div>
+
+          </div><!-- /bc-print-grid -->
+        </div>
+      </div><!-- /bc-print-section -->
+
     </div><!-- /ref-battlecards -->
+
+    <!-- INDUSTRY VERTICALS REFERENCE — populated by renderVerticalRefPanel() -->
+    <div class="ref-panel" id="ref-verticals"></div>
     <div class="ref-panel" id="ref-roadmap">
       <div class="card" style="background:linear-gradient(135deg,#EBF5FB,#E8F8F5);border:2px solid var(--navy);">
         <div class="card-title" style="color:var(--navy);">🏅 Ottimate Certification Roadmap</div>
@@ -2728,6 +2878,7 @@ function switchRefTab(btn, panelId) {
   document.querySelectorAll('.ref-panel').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById(panelId).classList.add('active');
+  if (panelId === 'ref-verticals') renderVerticalRefPanel();
 }
 
 // ── BATTLECARD GRID FUNCTIONS ──
@@ -2762,17 +2913,122 @@ function toggleDQCard(id) {
   if (card) card.classList.toggle('open');
 }
 
-function printRefMaterials() {
-  // Temporarily make all ref panels visible for printing
-  const panels = document.querySelectorAll('.ref-panel');
-  panels.forEach(p => p.style.display = 'block');
-  document.body.classList.add('printing-refs');
-  window.print();
-  document.body.classList.remove('printing-refs');
-  // Restore — only the active panel should show
-  panels.forEach(p => { p.style.display = ''; });
-  document.querySelectorAll('.ref-panel.active').forEach(p => p.style.display = 'block');
+const VERTICAL_PRINT_DATA = {
+  restaurants: {
+    emoji: '🍽️', label: 'Restaurants', tagline: 'Your Financial Sous-Chef',
+    desc: 'Restaurants manage dozens of vendors, receive invoices in every format imaginable, and operate on razor-thin margins. AP chaos directly impacts food cost, cash flow, and operator sanity.',
+    pain: ['High volume of invoices from produce, protein, beverage, and supply vendors','Mixed formats — handwritten DSD receipts, emailed PDFs, fax, and EDI','Chef/kitchen staff handling paper invoices with no AP training','Price fluctuations between order and delivery create food cost variance','Multi-unit groups lack consolidated spend visibility across locations','Manual entry is a daily 2–4 hour time drain for small AP teams'],
+    solve: [['Mobile capture','Chefs snap a photo → invoice is in Ottimate instantly. No paper, no manual entry.'],['Email routing rules','Vendor emails auto-forward into Ottimate. Zero manual upload.'],['Cost file validation','Catch price overcharges from vendors before any payment goes out.'],['DSD Receiving','Driver delivers, receiver scans the receipt. Ottimate flags any discrepancy immediately.'],['Multi-location rollup','See spend across every restaurant location in one dashboard.'],['GL coding','AI maps produce, protein, beverage costs to correct GL codes automatically.']],
+    icp: 'Fine dining groups, fast casual chains, multi-unit operators, restaurant management companies',
+    voice: '"We\'re not spending a lot of time on every single invoice. Before, I was probably spending 15 to 20 hours a week. And now, I go in every morning for about half an hour." — Mary Herrington, Accounting Manager'
+  },
+  hospitality: {
+    emoji: '🏨', label: 'Hospitality', tagline: 'Your Financial Concierge',
+    desc: 'Hotels, resorts, country clubs, and casinos manage complex multi-department spending with approval chains that span F&B, housekeeping, maintenance, and more. AP chaos here means unhappy guests and poor financial controls.',
+    pain: ['Multiple departments (F&B, housekeeping, maintenance, spa) each receiving invoices','Cross-department approval workflows are manual and slow','Seasonal volume spikes create processing backlogs','Lack of centralized visibility across properties or departments','Price discrepancies from DSD and direct vendor deliveries','Decentralized purchasing makes budget control difficult'],
+    solve: [['Department-level GL coding','Each line item coded to the right department, cost center, and property.'],['Configurable approval workflows','Route invoices by department, amount, or vendor — automatically.'],['Multi-property visibility','Corporate finance gets real-time view across all locations.'],['Cost file validation','Catch vendor overcharges across all procurement categories.'],['Inn-Flow & M3 integration','Native support for hospitality-specific ERPs.'],['Vendor statement reconciliation','Ensure what vendors say you owe matches your records.']],
+    icp: 'Hotels, resorts, country clubs, casinos, multi-property hospitality groups',
+    voice: 'Hospitality operators using Ottimate report dramatic reductions in invoice processing time and improved visibility into spend across all cost centers.'
+  },
+  retail: {
+    emoji: '🛒', label: 'Retail', tagline: 'Safeguard Your Margins',
+    desc: 'Retail businesses operate on thin margins where even small price discrepancies from vendors add up quickly. With DSD deliveries, high invoice volumes, and multi-location operations, AP automation is a margin protection tool.',
+    pain: ['DSD vendors deliver directly to stores — invoices are often handwritten or paper-based','Price variances from dozens of vendors go undetected without automation','High invoice volume makes manual processing unsustainable','Multi-store operators lack consolidated spend visibility','Petty cash and small purchases are hard to track and control','POS/ERP integration complexity across store systems'],
+    solve: [['DSD Receiving','Scan DSD receipts at the back door. Ottimate checks against the price catalog instantly.'],['Cost file validation','Ensure every line item matches the contracted vendor price — zero overpayments.'],['Invoice automation','Batch upload hundreds of invoices at once — Ottimate separates, organizes, and processes.'],['Spend management','Replace petty cash with digital spend tracking and approval workflows.'],['Real-time reporting','Track expenses and spending patterns across all store locations.'],['POS & ERP integration','Connects with retail-specific systems for seamless data flow.']],
+    icp: 'Regional retail chains, specialty retail groups, convenience stores, multi-location retail operators',
+    voice: 'Retailers using Ottimate report catching price discrepancies that account for 0.5–1% of annual spend — meaningful savings at scale.'
+  },
+  grocery: {
+    emoji: '🥬', label: 'Grocery', tagline: 'Your Financial Customer Service Manager',
+    desc: 'Grocery operates on some of the thinnest margins in retail. With thousands of SKUs, multiple DSD vendors per day, and complex price catalogs, even small AP errors have outsized impact on profitability.',
+    pain: ['Hundreds of DSD deliveries per week — each with its own receipt and pricing','Vendor price catalogs have thousands of SKUs with constantly changing prices','Manual receipt-to-price-catalog comparison is impossible at scale','Invoice volume is among the highest of any industry','Shrinkage and price discrepancies directly erode thin margins','Multi-store chains have no consolidated view of procurement spend'],
+    solve: [['DSD Receiving','Receiver scans DSD receipt → AI instantly checks against the price catalog.'],['Price catalog validation','Compare every line item to contracted pricing — thousands of SKUs, automatically.'],['Batch upload','Process hundreds of invoices simultaneously — Ottimate separates and organizes multi-page PDFs.'],['GL automation','Produce, dairy, frozen, dry goods — all coded to correct GL codes without human intervention.'],['3-way matching','Invoice × PO × receiving report for all purchase-order-based procurement.'],['Chain-wide reporting','See spend across every store location in real time.']],
+    icp: 'Independent grocers, regional grocery chains, specialty food retailers, co-ops',
+    voice: 'For a grocery chain spending $20M annually on inventory, catching just 0.5% in price discrepancies means $100K/year in recovered margin.'
+  },
+  seniorliving: {
+    emoji: '🏠', label: 'Senior Living', tagline: 'Smarter AP for Resident-Centered Care',
+    desc: 'Senior living organizations balance care quality with financial discipline. Manual AP creates hidden costs, compliance risk, and operational drag — all of which ultimately impact resident care.',
+    pain: ['Dozens of vendors per community (food, medical supplies, maintenance, landscaping)','Multi-community organizations have decentralized, inconsistent AP processes','HIPAA and state-level compliance requirements demand documentation and audit readiness','Small, overstretched AP teams spend hours on manual invoice entry','Limited real-time spend visibility until invoices are fully processed','Late payments strain vendor relationships and disrupt services'],
+    solve: [['Centralized visibility','Corporate finance sees all communities in one dashboard — consistent, real-time.'],['Standardized workflows','Configure approval workflows across all communities for consistency.'],['Audit trails','Every action logged with timestamp — always audit-ready.'],['Automated GL coding','Food, medical, maintenance coded correctly every time.'],['Staffing efficiency','90%+ automation frees small AP teams to focus on exceptions, not entry.'],['Vendor management','Track payment terms, manage vendor records, and stay on top of what\'s owed.']],
+    icp: 'Sub-acute care facilities, assisted living communities, memory care centers, dental and specialty senior health groups',
+    voice: '"Before Ottimate, we had invoices sitting in piles. Now everything is processed and approved the same day." — Senior Living Finance Director'
+  },
+  healthcare: {
+    emoji: '🏥', label: 'Healthcare', tagline: 'Your Financial Front Desk Coordinator',
+    desc: 'Healthcare organizations depend on accurate, timely AP to ensure medical supplies, medications, and services flow without interruption. AP errors here have consequences beyond the balance sheet.',
+    pain: ['Complex compliance requirements (HIPAA, state audits, Medicare/Medicaid documentation)','High vendor count across medical supplies, pharmaceuticals, and facilities','Invoice errors can delay critical supplies and impact patient care','Multiple departments and cost centers create approval complexity','Manual processes make audit preparation time-consuming and risky','Limited real-time visibility into supply chain spend'],
+    solve: [['Audit trails','Complete documentation of every invoice, approval, and payment — always audit-ready.'],['Compliance support','SOC 2 certified platform with data security controls for healthcare data.'],['Automated GL coding','Medical supplies, pharmaceuticals, facility costs coded to correct cost centers.'],['Approval workflows','Route by department, cost center, or amount — ensuring the right person approves.'],['Real-time visibility','See supply spend across all departments and facilities as it happens.'],['Vendor management','Track outstanding obligations, payment terms, and vendor contacts in one place.']],
+    icp: 'Hospitals, primary care clinics, dental groups, nursing homes, assisted living facilities, healthcare management companies',
+    voice: 'Healthcare finance teams using Ottimate report spending significantly less time on invoice processing and more time on strategic financial management.'
+  }
+};
+
+function renderVerticalRefPanel() {
+  const panel = document.getElementById('ref-verticals');
+  if (!panel) return;
+  const verts = (APP && APP.verticals && APP.verticals.length > 0) ? APP.verticals : Object.keys(VERTICAL_PRINT_DATA);
+
+  const tabBtns = verts.map(function(v, i) {
+    const d = VERTICAL_PRINT_DATA[v];
+    if (!d) return '';
+    return '<button class="vtab ' + (i===0?'active':'') + '" onclick="switchRefVTab(this,\'refv-\',\'' + v + '\')">' + d.emoji + ' ' + d.label + '</button>';
+  }).join('');
+
+  const panels = verts.map(function(v, i) {
+    const d = VERTICAL_PRINT_DATA[v];
+    if (!d) return '';
+    const painItems = d.pain.map(function(p){ return '<li>' + p + '</li>'; }).join('');
+    const solveItems = d.solve.map(function(s){ return '<li><strong>' + s[0] + ':</strong> ' + s[1] + '</li>'; }).join('');
+    return '<div class="vcontent ' + (i===0?'active':'') + '" id="refv-' + v + '">' +
+      '<div class="card">' +
+        '<div class="card-title">' + d.emoji + ' ' + d.label + ' — ' + d.tagline + '</div>' +
+        '<p class="body-text">' + d.desc + '</p>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">' +
+          '<div><h3 class="section-h3">🔴 Key Pain Points</h3><ul class="content-list">' + painItems + '</ul></div>' +
+          '<div><h3 class="section-h3">✅ How Ottimate Solves It</h3><ul class="content-list">' + solveItems + '</ul></div>' +
+        '</div>' +
+        '<div class="info-box" style="margin-top:0.75rem;"><div class="info-box-title">🎯 Ideal Customer Profile</div>' + d.icp + '</div>' +
+        '<div class="info-box win" style="margin-top:0.75rem;"><div class="info-box-title">💬 Customer Voice</div><em>' + d.voice + '</em></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  panel.innerHTML =
+    '<div class="card" style="background:var(--teal-light);border:2px solid var(--teal);margin-bottom:1rem;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<div class="info-box-title" style="color:#00838F;margin-bottom:0.25rem;">🗂️ Your Selected Verticals</div>' +
+        '<button class="btn btn-secondary btn-sm print-tab-btn" onclick="printTab(\'ref-verticals\')">🖨️ Print Vertical Guides</button>' +
+      '</div>' +
+      '<p style="font-size:0.85rem;color:var(--gray4);">These vertical overviews are tailored to the industries you selected during onboarding. Use them to prepare for industry-specific conversations and demos.</p>' +
+    '</div>' +
+    '<div class="vertical-tabs" style="margin-bottom:1rem;">' + tabBtns + '</div>' +
+    panels;
 }
+
+function switchRefVTab(btn, prefix, vKey) {
+  btn.closest('.vertical-tabs').querySelectorAll('.vtab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('[id^="' + prefix + '"]').forEach(function(el){
+    el.classList.toggle('active', el.id === prefix + vKey);
+  });
+}
+
+function printTab(tabId) {
+  const panel = document.getElementById(tabId);
+  if (!panel) return;
+  // For verticals: ensure content is rendered
+  if (tabId === 'ref-verticals') renderVerticalRefPanel();
+  // Show the target panel for print
+  panel.setAttribute('data-printing', 'true');
+  document.body.classList.add('printing-tab');
+  window.print();
+  document.body.classList.remove('printing-tab');
+  panel.removeAttribute('data-printing');
+}
+
+// Legacy alias kept for backward compatibility
+function printRefMaterials() { printTab('ref-cheat'); }
 
 
 // Base exam questions — Accounting, Meet Ottimate, Persona (15 total, no verticals)
