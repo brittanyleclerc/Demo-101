@@ -1019,6 +1019,7 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
     <div class="app-header-logo">Ottim<span>ate</span> <span style="font-size:0.8rem;opacity:0.7;font-weight:400;">Core AP + Statements</span></div>
     <div class="app-header-right">
       <span id="header-username"></span>
+      <button id="header-reset-btn" onclick="resetForNewUser()" style="display:none;margin-left:0.5rem;background:none;border:1px solid rgba(255,255,255,0.4);color:rgba(255,255,255,0.75);font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:20px;cursor:pointer;white-space:nowrap;" title="Clear your session so a new user can start fresh">Not you?</button>
       <div class="app-header-progress" title="Overall progress">
         <div class="app-header-progress-fill" id="header-progress-fill" style="width:0%"></div>
       </div>
@@ -1136,6 +1137,7 @@ function startTraining() {
     const shell = document.getElementById('app-shell');
     shell.classList.add('active');
     document.getElementById('header-username').textContent = name;
+    document.getElementById('header-reset-btn').style.display = 'inline-block';
     updateProgress();
     showDashboard();
     // fade in after content is rendered
@@ -2750,6 +2752,7 @@ function renderRef() {
 
 let examAnswers = {};
 let examSubmitted = false;
+let examPassedPriorSession = false; // true only when a pass is restored from localStorage (prevents duplicate notifications on reload while still notifying fresh passes)
 
 function renderExam() {
   if (!APP.examPassed) {
@@ -2827,12 +2830,18 @@ function submitExam() {
   });
   const pct = Math.round((score / EXAM_QUESTIONS.length) * 100);
   const passed = pct >= 80;
-  const alreadyPassed = APP.examPassed; // track if this is a first-time pass
   APP.examScore = score;
   APP.examPassed = passed;
   if (passed) APP.certVerticals = APP.verticals.slice(); // snapshot verticals at time of passing
   saveState();
-  if (passed && !alreadyPassed) sendSlackCertification('Core AP + Statements — Demo Training', score, EXAM_QUESTIONS.length);
+  // Only notify if this is a genuine first-time pass in this page session.
+  // examPassedPriorSession is set only when a pass is restored from localStorage,
+  // so a returning user who already passed won't re-trigger a notification,
+  // but a new user on the same device (after "Not you?" reset) correctly will.
+  if (passed && !examPassedPriorSession) {
+    sendSlackCertification('Core AP + Statements — Demo Training', score, EXAM_QUESTIONS.length);
+    examPassedPriorSession = true; // prevent duplicate if they somehow re-submit this session
+  }
   const resultBanner = document.createElement('div');
   resultBanner.style.cssText = 'position:sticky;top:58px;z-index:100;padding:1rem 2rem;text-align:center;font-weight:700;font-size:1.05rem;';
   resultBanner.style.background = passed ? 'var(--green)' : 'var(--red)';
@@ -3081,7 +3090,7 @@ function toggleObj(el) {
       if (s.quizScores) APP.quizScores = s.quizScores;
       if (s.iqAnswers) IQ_ANSWERS = s.iqAnswers;
       if (s.iqSubmitted) IQ_SUBMITTED = s.iqSubmitted;
-      if (s.examPassed) APP.examPassed = s.examPassed;
+      if (s.examPassed) { APP.examPassed = s.examPassed; examPassedPriorSession = true; }
       if (s.examScore !== undefined && s.examScore !== null) APP.examScore = s.examScore;
       if (s.examAnswers) examAnswers = s.examAnswers;
       if (s.examSubmitted) examSubmitted = s.examSubmitted;
@@ -3100,6 +3109,7 @@ function toggleObj(el) {
           const shell = document.getElementById('app-shell');
           shell.classList.add('active');
           document.getElementById('header-username').textContent = APP.name;
+          document.getElementById('header-reset-btn').style.display = 'inline-block';
           updateProgress();
           showDashboard();
         }, 0);
@@ -3166,6 +3176,13 @@ function sendSlackCertification(dashboardName, score, total) {
       mode: 'no-cors'
     });
   } catch(e) {}
+}
+
+// Reset for a new user — clears all saved state and returns to welcome screen
+function resetForNewUser() {
+  if (!confirm('This will clear all progress and return to the welcome screen so a new user can start fresh. Continue?')) return;
+  localStorage.removeItem('ottimate_demo_state');
+  location.reload();
 }
 
 function saveState() {
