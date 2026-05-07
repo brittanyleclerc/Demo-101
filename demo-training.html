@@ -3145,37 +3145,25 @@ function saveEditedVerticals() {
   setTimeout(function(){ banner.remove(); }, 4000);
 }
 
-// ── SLACK NOTIFICATION ────────────────────────────────────
-const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+// ── MAKE.COM NOTIFICATION ─────────────────────────────────
+const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/j94hm993xafxtl6rlokdhysp5gp6qge3';
 
 function sendSlackCertification(dashboardName, score, total) {
   try {
     const pct = Math.round((score / total) * 100);
     const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
     const vertLabels = certVerts.map(function(v) { return VERTICAL_LABELS[v] || v; }).join(', ') || 'N/A';
-    const payload = {
-      blocks: [
-        { type: 'header', text: { type: 'plain_text', text: '🎓 New Certification Earned!', emoji: true } },
-        {
-          type: 'section',
-          fields: [
-            { type: 'mrkdwn', text: '*Name:*\n' + APP.name },
-            { type: 'mrkdwn', text: '*Role:*\n' + APP.role },
-            { type: 'mrkdwn', text: '*Training Completed:*\n' + dashboardName },
-            { type: 'mrkdwn', text: '*Exam Score:*\n' + score + '/' + total + ' (' + pct + '%)' },
-            { type: 'mrkdwn', text: '*Date Issued:*\n' + APP.certDate },
-            { type: 'mrkdwn', text: '*Verticals Trained:*\n' + vertLabels }
-          ]
-        },
-        { type: 'divider' },
-        { type: 'context', elements: [{ type: 'mrkdwn', text: '✅ This rep has successfully completed all training modules and passed the final certification exam.' }] }
-      ]
-    };
-    fetch(SLACK_WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body: JSON.stringify(payload)
+    const params = new URLSearchParams({
+      name: APP.name,
+      role: APP.role,
+      dashboard: dashboardName,
+      score: score + '/' + total + ' (' + pct + '%)',
+      date: APP.certDate,
+      verticals: vertLabels
+    });
+    fetch(MAKE_WEBHOOK_URL + '?' + params.toString(), {
+      method: 'GET',
+      mode: 'no-cors'
     });
   } catch(e) {}
 }
