@@ -270,6 +270,8 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
 .sidebar-item .si-dot.done { background: var(--green); }
 .sidebar-item .si-dot.locked { background: rgba(255,255,255,0.1); }
 .sidebar-item.locked { opacity: 0.4; cursor: not-allowed; }
+.sidebar-portal-link { display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 1.25rem; cursor: pointer; font-size: 0.8rem; color: rgba(255,255,255,0.45); transition: all 0.15s; border-left: 3px solid transparent; user-select: none; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); }
+.sidebar-portal-link:hover { color: rgba(255,255,255,0.8); }
 
 /* ── MAIN CONTENT AREA ── */
 .main-area {
@@ -980,11 +982,6 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
   <div class="welcome-card">
     <div class="welcome-logo">Ottim<span>ate</span></div>
     <div class="welcome-tagline">Fundamentals Training &amp; Certification Portal</div>
-    <div style="background:linear-gradient(135deg,#1565A0,#00BCD4);color:white;border-radius:10px;padding:0.85rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-      <span>🎬</span>
-      <div style="flex:1;min-width:150px;font-size:0.875rem;">Also available: Core AP + Statements Demo Training</div>
-      <a href="demo-training.html" style="display:inline-block;padding:0.4rem 1rem;background:white;color:#1565A0;border-radius:6px;font-weight:700;font-size:0.82rem;text-decoration:none;white-space:nowrap;">Open →</a>
-    </div>
     <div class="form-group">
       <label class="form-label">Your Full Name</label>
       <input type="text" id="input-name" placeholder="e.g. Jordan Rivera" />
@@ -1029,19 +1026,18 @@ h3.section-h3 { font-size: 0.95rem; font-weight: 700; color: var(--blue); margin
   </header>
   <div class="app-body">
     <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section-label">Overview</div>
+      <div class="sidebar-item" id="snav-dashboard" onclick="showDashboard()"><span class="si-icon">🏠</span> Dashboard</div>
       <div class="sidebar-section-label">Training Modules</div>
       <div class="sidebar-item" id="snav-m1" onclick="showModule(1)"><span class="si-icon">📚</span> Accounting Fundamentals<span class="si-dot" id="sdot-1"></span></div>
       <div class="sidebar-item" id="snav-m2" onclick="showModule(2)"><span class="si-icon">🏢</span> Meet Ottimate<span class="si-dot" id="sdot-2"></span></div>
       <div class="sidebar-item" id="snav-m3" onclick="showModule(3)"><span class="si-icon">🗂️</span> Industry Verticals<span class="si-dot" id="sdot-3"></span></div>
       <div class="sidebar-item" id="snav-m4" onclick="showModule(4)"><span class="si-icon">🧠</span> Persona-Based Selling<span class="si-dot" id="sdot-4"></span></div>
-      <div class="sidebar-section-label" style="margin-top:0.5rem;">Resources</div>
+      <div class="sidebar-section-label">Resources</div>
       <div class="sidebar-item" id="snav-ref" onclick="showRef()"><span class="si-icon">📋</span> Reference Materials</div>
-      <div class="sidebar-section-label" style="margin-top:0.5rem;">Certification</div>
+      <div class="sidebar-section-label">Certification</div>
       <div class="sidebar-item locked" id="snav-exam" onclick="tryExam()"><span class="si-icon">🎓</span> Final Exam<span class="si-dot locked" id="sdot-exam"></span></div>
-      <div class="sidebar-section-label" style="margin-top:0.5rem;">Navigation</div>
-      <div class="sidebar-item" onclick="showDashboard()"><span class="si-icon">🏠</span> Dashboard</div>
-      <div class="sidebar-section-label" style="margin-top:0.5rem;">Also Available</div>
-      <div class="sidebar-item" onclick="window.location.href='demo-training.html'"><span class="si-icon">🎬</span> Demo Training →</div>
+      <div class="sidebar-portal-link" onclick="window.location.href='index.html'">← Back to Portal</div>
     </nav>
     <main class="main-area" id="main-area"></main>
   </div>
@@ -1226,14 +1222,6 @@ function renderDashboard() {
   }
   const examReady = done >= 4;
   document.getElementById('main-area').innerHTML = `
-    <div style="background:linear-gradient(135deg,#1565A0,#00BCD4);color:white;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-      <span style="font-size:1.2rem;">🎬</span>
-      <div style="flex:1;min-width:200px;">
-        <div style="font-weight:700;font-size:0.95rem;">Also available: Core AP + Statements Demo Training</div>
-        <div style="font-size:0.82rem;opacity:0.85;">Step-by-step demo walkthrough with screenshots and talk tracks</div>
-      </div>
-      <a href="demo-training.html" style="display:inline-block;padding:0.5rem 1.25rem;background:white;color:#1565A0;border-radius:8px;font-weight:700;font-size:0.88rem;text-decoration:none;white-space:nowrap;">Open Demo Training →</a>
-    </div>
     <div class="page-hero">
       <h1>Welcome back, ${APP.name}! 👋</h1>
       <p>Role: ${APP.role} &nbsp;|&nbsp; Verticals: ${vertList} &nbsp;<button class="ev-btn-link" onclick="openEditVerticals()">✏️ Edit</button></p>
@@ -3598,6 +3586,37 @@ document.addEventListener('click', function(e) {
       }
     }
   } catch(e) {}
+
+  // No saved Fundamentals profile — check other Level 1 dashboards for an existing profile
+  if (!APP.name) {
+    var profileSources = ['ottimate_demo_state', 'ottimate_d102_state'];
+    for (var _i = 0; _i < profileSources.length; _i++) {
+      try {
+        var _src = JSON.parse(localStorage.getItem(profileSources[_i]) || 'null');
+        if (_src && _src.name && _src.role && _src.verticals && _src.verticals.length > 0) {
+          APP.name = _src.name;
+          APP.role = _src.role;
+          APP.verticals = _src.verticals;
+          APP.certDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          saveState();
+          setTimeout(function() {
+            document.getElementById('screen-welcome').classList.remove('active');
+            var shell = document.getElementById('app-shell');
+            shell.classList.add('active');
+            document.getElementById('header-username').textContent = APP.name;
+            document.getElementById('header-reset-btn').style.display = 'inline-block';
+            updateProgress();
+            showDashboard();
+            window.scrollTo(0, 0);
+          }, 0);
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+
+  // Retry any notifications that didn't make it through on a previous page load
+  setTimeout(retryPendingNotifications, 3000);
 })();
 
 // ── EDIT VERTICALS ────────────────────────────────────
@@ -3654,28 +3673,80 @@ function saveEditedVerticals() {
     document.body.appendChild(banner);
     setTimeout(function(){ banner.remove(); }, 4000);
   }
-}a
+}
 
 // ── MAKE.COM NOTIFICATION ─────────────────────────────────
 const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/j94hm993xafxtl6rlokdhysp5gp6qge3';
+
+// Shared queue key — intentionally NOT cleared by "Not you?" so retries survive user resets
+const NOTIF_QUEUE_KEY = 'ottimate_notifications_queue';
+const NOTIF_MAX_ATTEMPTS = 5;
+const NOTIF_MIN_RETRY_MS = 2 * 60 * 1000; // wait at least 2 minutes between retries
+
+function _dispatchNotification(entry) {
+  try {
+    const params = new URLSearchParams({
+      name: entry.name,
+      role: entry.role,
+      dashboard: entry.dashboard,
+      score: entry.score,
+      date: entry.date,
+      verticals: entry.verticals
+    });
+    fetch(MAKE_WEBHOOK_URL + '?' + params.toString(), {
+      method: 'GET',
+      mode: 'no-cors',
+      keepalive: true  // keeps request alive even if user navigates away immediately
+    });
+  } catch(e) {}
+}
 
 function sendSlackCertification(dashboardName, score, total) {
   try {
     const pct = Math.round((score / total) * 100);
     const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
     const vertLabels = certVerts.map(function(v) { return VERTICAL_LABELS[v] || v; }).join(', ') || 'N/A';
-    const params = new URLSearchParams({
+    const entry = {
+      id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
       name: APP.name,
       role: APP.role,
       dashboard: dashboardName,
       score: score + '/' + total + ' (' + pct + '%)',
-      date: APP.certDate,
-      verticals: vertLabels
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      verticals: vertLabels,
+      attempts: 1,
+      lastAttempt: Date.now()
+    };
+    // Persist to queue BEFORE sending — if send fails or tab closes, retry kicks in on next load
+    const queue = JSON.parse(localStorage.getItem(NOTIF_QUEUE_KEY) || '[]');
+    queue.push(entry);
+    localStorage.setItem(NOTIF_QUEUE_KEY, JSON.stringify(queue));
+    _dispatchNotification(entry);
+  } catch(e) {}
+}
+
+function retryPendingNotifications() {
+  try {
+    const queue = JSON.parse(localStorage.getItem(NOTIF_QUEUE_KEY) || '[]');
+    if (!queue.length) return;
+    const now = Date.now();
+    let changed = false;
+    queue.forEach(function(entry) {
+      if (entry.attempts >= NOTIF_MAX_ATTEMPTS) return;
+      if ((now - (entry.lastAttempt || 0)) < NOTIF_MIN_RETRY_MS) return;
+      entry.attempts++;
+      entry.lastAttempt = now;
+      changed = true;
+      _dispatchNotification(entry);
     });
-    fetch(MAKE_WEBHOOK_URL + '?' + params.toString(), {
-      method: 'GET',
-      mode: 'no-cors'
+    // Prune entries that have exhausted retries and are older than 7 days
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const pruned = queue.filter(function(e) {
+      return !(e.attempts >= NOTIF_MAX_ATTEMPTS && (now - (e.lastAttempt || 0)) > weekMs);
     });
+    if (changed || pruned.length !== queue.length) {
+      localStorage.setItem(NOTIF_QUEUE_KEY, JSON.stringify(pruned));
+    }
   } catch(e) {}
 }
 
