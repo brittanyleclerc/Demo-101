@@ -84,7 +84,9 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
 .vertical-card.selected { border-color: var(--teal); background: var(--teal-light); font-weight: 600; color: var(--navy); }
 .vertical-card .vi { font-size: 1.4rem; display: block; margin-bottom: 0.2rem; }
 .hint { font-size: 0.78rem; color: var(--gray4); margin-top: 0.4rem; }
-.prereq-note { background: var(--green-light); border-left: 4px solid var(--green); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--gray5); margin-bottom: 1.25rem; }
+.prereq-note { border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--gray5); margin-bottom: 1.25rem; }
+.prereq-note.prereq-ok   { background: var(--green-light); border-left: 4px solid var(--green); }
+.prereq-note.prereq-warn { background: #FFF8E1; border-left: 4px solid #F9A825; }
 
 /* ── BUTTONS ── */
 .btn { display: inline-block; padding: 0.7rem 1.75rem; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.18s; font-family: inherit; text-decoration: none; }
@@ -509,7 +511,7 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
       <div class="welcome-logo">Otti<span>mate</span></div>
       <div class="welcome-badge">LEVEL 1 · DEMO 102</div>
       <div class="welcome-tagline">Vendor Pay &amp; Basic Reporting — Training &amp; Certification</div>
-      <div class="prereq-note">✅ Demo 101 (Core AP + Statements) complete — you're cleared for Demo 102!</div>
+      <div class="prereq-note prereq-warn" id="prereq-note">⚠️ Please complete <strong>Demo 101 (Core AP + Statements)</strong> before starting Demo 102.</div>
       <div class="form-group">
         <label class="form-label" for="input-name">Your Name</label>
         <input type="text" id="input-name" placeholder="First and last name">
@@ -716,6 +718,24 @@ function initApp() {
 
   // No profile found anywhere — show the welcome screen
   document.getElementById('screen-welcome').classList.add('active');
+
+  // Show correct prereq message based on Demo 101 completion status
+  const prereqEl = document.getElementById('prereq-note');
+  if (prereqEl) {
+    let d101Passed = false;
+    try {
+      const d1 = JSON.parse(localStorage.getItem('ottimate_demo_state') || 'null');
+      if (d1 && d1.examPassed) d101Passed = true;
+    } catch(e) {}
+    if (d101Passed) {
+      prereqEl.className = 'prereq-note prereq-ok';
+      prereqEl.innerHTML = '✅ Demo 101 (Core AP + Statements) complete — you\'re cleared for Demo 102!';
+    } else {
+      prereqEl.className = 'prereq-note prereq-warn';
+      prereqEl.innerHTML = '⚠️ <strong>Heads up:</strong> Demo 102 builds on Demo 101. Please complete <a href="demo-training.html" style="color:var(--navy);font-weight:600;text-decoration:underline;">Demo 101 (Core AP + Statements)</a> before starting this training.';
+    }
+  }
+
   window.scrollTo(0, 0);
 }
 
@@ -882,7 +902,9 @@ function showM3Step(tabKey, n) {
   var bar = document.getElementById('m3-bar-' + tabKey);
   if (bar) {
     bar.querySelector('.m3-prev').disabled = n <= 1;
-    bar.querySelector('.m3-next').disabled = n >= total;
+    var nextBtn = bar.querySelector('.m3-next');
+    nextBtn.disabled = n >= total;
+    nextBtn.style.visibility = n >= total ? 'hidden' : 'visible';
   }
 }
 function nextM3Step(tabKey) { showM3Step(tabKey, M3_STEP_STATE[tabKey] + 1); }
@@ -1033,6 +1055,7 @@ function renderModule1() {
             <li>Converts AP from cost center to profit center</li>
             <li>Fastest, most secure</li>
           </ul>
+          <div class="info-box warn" style="margin-top:0.75rem;font-size:0.82rem;padding:0.5rem 0.75rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients.</div>
         </div>
         <div class="pm-card ach">
           <div class="pm-icon">🏦</div>
@@ -1074,6 +1097,7 @@ function renderModule1() {
         <div class="info-box-title">How to Position It</div>
         <em>"By utilizing vCards, you can actually turn your AP department into a revenue generator. Instead of AP just being a cost center, you're now earning rebates every time a vendor accepts a card payment."</em>
       </div>
+      <div class="info-box warn" style="margin-top:0.75rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients.</div>
     </div>
     <div class="card">
       <div class="card-title"><span class="card-icon">📄</span>Check Payments: What Finance Controllers Need to Know</div>
@@ -1115,6 +1139,7 @@ function renderModule1() {
           <br><br>This speaks to ROI and pain relief.
         </div>
       </div>
+      <div class="info-box tip" style="margin-top:0.75rem;"><strong>⚠️ Grocery Clients:</strong> vCard rebates are not available for grocery clients. Lead with one-to-one reconciliation and payment efficiency instead.</div>
     </div>
     <div class="card">
       <div class="card-title"><span class="card-icon">📍</span>The Locations View: Real-Time Budget Management</div>
@@ -1132,7 +1157,7 @@ function renderModule1() {
       <div class="card-title"><span class="card-icon">📊</span>Qualification Signals — Who Is a Strong Vendor Pay Prospect?</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
         <div class="info-box win"><div class="info-box-title">Strong Signals</div><ul style="list-style:none;font-size:0.88rem;"><li>✓ Multi-location operations with site-level budgets</li><li>✓ High volume of vendor payments (manual check cutting is painful)</li><li>✓ Controller complains about month-end bank rec</li><li>✓ AP team spending significant time on payment logistics</li><li>✓ Company wants to reduce check fraud risk</li></ul></div>
-        <div class="info-box warn"><div class="info-box-title">Questions to Ask</div><ul style="list-style:none;font-size:0.88rem;"><li>→ "How are you currently paying vendors?"</li><li>→ "How long does bank reconciliation take your team each month?"</li><li>→ "Do you have location-level payment authority today?"</li><li>→ "Are you leaving rebate revenue on the table with paper checks?"</li></ul></div>
+        <div class="info-box warn"><div class="info-box-title">Questions to Ask</div><ul style="list-style:none;font-size:0.88rem;"><li>→ "How are you currently paying vendors?"</li><li>→ "How long does bank reconciliation take your team each month?"</li><li>→ "Do you have location-level payment authority today?"</li><li>→ "Are you leaving rebate revenue on the table with paper checks?" <em style="font-size:0.78rem;color:var(--orange);display:block;margin-top:0.2rem;">⚠️ Note: vCard rebates are not available for grocery clients — skip this question for grocery prospects.</em></li></ul></div>
       </div>
     </div>
     <div class="card">
@@ -1186,7 +1211,7 @@ function renderModule1() {
     <div class="m3-section-nav">
       <button class="nav-btn" onclick="goToModuleTab('m1-objections')">← Objection Handling</button>
       <span class="nav-center">Section 5 of 5</span>
-      <span></span>
+      <span id="m1-quiz-nav-next"></span>
     </div>
   </div>
   `;
@@ -1238,6 +1263,7 @@ function renderRef() {
         <tr><td><strong>3rd</strong></td><td>Check</td><td>Last resort — highest cost, slowest, fraud risk</td><td>Vendors requiring physical checks only</td></tr>
       </table>
       <div class="info-box tip" style="margin-top:0.75rem;"><div class="info-box-title">Ottimate's Goal</div>Enroll as many vendors as possible in vCard to maximize rebate revenue. Ottimate's team actively manages vendor enrollment on the client's behalf.</div>
+      <div class="info-box warn" style="margin-top:0.75rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients.</div>
     </div>
     <div class="card">
       <div class="card-title">📋 Standard Reports — Cheat Sheet</div>
@@ -1296,7 +1322,7 @@ function renderRef() {
         <div class="disc-cat-header" onclick="toggleDiscCat(this)">💼 For CFOs / VP Finance <span class="disc-cat-toggle">▼</span></div>
         <div class="disc-cat-body">
           <div class="dq-item">"What percentage of your vendor payments go out via check today, and what does that cost you in labor, stamps, and check stock?"</div>
-          <div class="dq-item">"Have you ever modeled what a 0.5–1% rebate on card-eligible spend would mean to your bottom line annually?"</div>
+          <div class="dq-item">"Have you ever modeled what a 0.5–1% rebate on card-eligible spend would mean to your bottom line annually?" <em style="font-size:0.78rem;color:var(--orange);display:block;margin-top:0.2rem;">⚠️ Note: vCard rebates are not available for grocery clients — skip for grocery prospects.</em></div>
           <div class="dq-item">"How do you forecast cash flow around payment runs — is it a spreadsheet or do you have a live view?"</div>
           <div class="dq-item">"How quickly can you tell me right now what payments are scheduled to go out this week?"</div>
           <div class="dq-item">"Would it change your view of AP if it contributed revenue rather than just incurring cost?"</div>
@@ -1343,6 +1369,7 @@ function renderRef() {
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print</button>
       </div>
       <p style="font-size:0.85rem;color:var(--gray4);margin-bottom:1rem;">Click any objection to expand the recommended response.</p>
+      <div class="info-box warn" style="margin-bottom:1rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients. For grocery prospects, avoid rebate-focused rebuttals and redirect to payment efficiency, fraud reduction, and reconciliation benefits instead.</div>
       <div class="obj-card">
         <div class="obj-q" onclick="toggleObj(this)">"I like signing checks — it gives me control." <span style="font-size:0.75rem;font-weight:400;opacity:0.6;">click to expand</span></div>
         <div class="obj-a"><strong>Validate + Redirect:</strong> "That makes total sense — control over cash out the door is critical. What Ottimate gives you is that exact same control, digitally. You configure who can approve payments, at what dollar thresholds, and nothing goes out without the right approvals in place. The difference is: you get a full audit trail, mobile approval, and no check fraud risk — and instead of spending money on stamps and labor, you're earning rebate revenue." <em>Key shift: it's not about losing control, it's about upgrading the mechanism of control.</em></div>
@@ -1867,7 +1894,7 @@ function renderRef() {
       <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 1 — Set the Agenda</div><div class="obj-a">"Here's what I'd like to cover today: I'll recap what I heard in our discovery, show you specifically how Ottimate addresses that, and leave time for your questions and next steps. Does that work?"</div></div>
       <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 2 — Discovery Recap</div><div class="obj-a">"Based on our conversation, here's what I heard: you're processing about 800 invoices a month, your team is spending 15–20 hours per week on manual data entry, and bank reconciliation is your biggest pain point. Is that right?" <em>(This shows you listened and builds trust.)</em></div></div>
       <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 3 — Demo Their Pain (not a feature tour)</div><div class="obj-a">Show only what's relevant to what you heard. If they mentioned reconciliation, lead with one-to-one bank rec. If they're multi-location, lead with the Locations View. If they want to reduce check exposure, lead with the vCard story. Don't show everything — show the right things.</div></div>
-      <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 4 — The ROI Moment</div><div class="obj-a">"You mentioned your team spends significant time on manual check runs and reconciliation. Ottimate eliminates most of that — and the vCard rebate turns your AP department into a revenue line. Would it be useful if I put together a formal ROI analysis with your specific numbers?" <em>Make it real with their data.</em></div></div>
+      <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 4 — The ROI Moment</div><div class="obj-a">"You mentioned your team spends significant time on manual check runs and reconciliation. Ottimate eliminates most of that — and the vCard rebate turns your AP department into a revenue line. Would it be useful if I put together a formal ROI analysis with your specific numbers?" <em>Make it real with their data.</em><em style="font-size:0.78rem;color:var(--orange);display:block;margin-top:0.4rem;">⚠️ Note: vCard rebates are not available for grocery clients — lead with one-to-one reconciliation and payment efficiency instead.</em></div></div>
       <div class="obj-card"><div class="obj-q" onclick="toggleObj(this)">Step 5 — Next Steps</div><div class="obj-a">Always leave with a defined next step. Never end with "I'll follow up." Instead: "What makes sense — a follow-up call Thursday, or shall we get a technical review scheduled with your IT team?" Lock in the next step before you hang up.</div></div>
     </div>
     <div class="card">
@@ -1879,6 +1906,7 @@ function renderRef() {
         <tr><td><strong>AP Manager</strong></td><td>Locations View</td><td>Payment approval workflow → one-to-one reconciliation → reports</td></tr>
         <tr><td><strong>Owner / Operator</strong></td><td>Speed &amp; simplicity</td><td>Real-time spend visibility across all locations → vCard revenue story</td></tr>
       </table>
+      <div class="info-box warn" style="margin-top:0.75rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients. For CFO and Owner/Operator personas at grocery accounts, omit the vCard revenue story and lead with operational efficiency and one-to-one reconciliation instead.</div>
     </div>
   </div>
   `;
@@ -2018,6 +2046,7 @@ function renderModule3() {
         <div class="info-box tip mb-2"><div class="info-box-title">Goal</div>Show that vendor credits are tracked in Ottimate and can be applied directly in the payment run — reducing the total automatically.</div>
         <div class="screenshot-wrap"><img src="${BASE}02-D. Location-Based Payments - Creating a Payment &amp; Applying a Credit.png" alt="Applying a Credit" onclick="openLightbox(this.src)"><div class="screenshot-caption">Creating a Payment &amp; Applying a Credit Memo — net amount updates automatically</div></div>
         <div class="info-box purple mt-1"><div class="info-box-title">Talk Track</div><em>"If a vendor has issued you a credit memo, it'll show up here. I can apply it directly to this payment run — the total adjusts automatically. No manual tracking, no risk of missing a credit."</em></div>
+        <div class="info-box warn mt-1"><div class="info-box-title">⚡ Pro Tip — Setting Up This Demo Moment</div>For the credit memo to appear in the payment run, you must first add it as a corresponding credit against an invoice in the <strong>Locations with Unpaid Invoices</strong> tab using the <strong>'Create Invoice'</strong> option. Alternatively, if setting this up is not practical, you can demonstrate the same concept by showing a <strong>vCard payment in the Pending Export bucket</strong> — the credit applied will be visible there as well.</div>
       </div>
     </div>
 
@@ -2113,7 +2142,7 @@ function renderModule3() {
     <div class="step-panel active" id="m3-t5-s1">
       <div class="card">
         <div class="card-title">💳 Step 1 — Payment Methods Overview</div>
-        <div class="info-box tip mb-2"><div class="info-box-title">Goal</div>Set up the payment methods section. Establish the priority hierarchy and tee up the vCard revenue story.</div>
+        <div class="info-box tip mb-2"><div class="info-box-title">Goal</div>Set up the payment methods section. Establish the priority hierarchy and tee up the vCard revenue story.<em style="font-size:0.78rem;color:var(--orange);display:block;margin-top:0.3rem;">⚠️ Note: vCard rebates are not available for grocery clients — focus on check elimination and payment efficiency instead of the revenue story.</em></div>
         <div class="screenshot-wrap"><img src="${BASE}05-A. Payment Methods (Types of Supported Payments).png" alt="Payment Methods" onclick="openLightbox(this.src)"><div class="screenshot-caption">Payment Methods — vCard, ACH, and Check; priority order drives maximum rebate capture</div></div>
         <div class="info-box purple mt-1"><div class="info-box-title">Talk Track</div><em>"Ottimate supports three payment types: Virtual Card (vCard), ACH, and check. There's a priority hierarchy — vCard always goes first, because that's where you earn a rebate. ACH is second. Check is the fallback. The system routes each vendor to the highest available payment method automatically."</em></div>
       </div>
@@ -2122,12 +2151,13 @@ function renderModule3() {
     <div class="step-panel" id="m3-t5-s2">
       <div class="card">
         <div class="card-title">💳 Step 2 — vCard Payment &amp; Remittance</div>
-        <div class="info-box tip mb-2"><div class="info-box-title">Goal</div>Lead with vCard — it's the revenue generator. Show both the payment in Ottimate and the remittance the vendor receives on the same step.</div>
+        <div class="info-box tip mb-2"><div class="info-box-title">Goal</div>Lead with vCard — it's the revenue generator. Show both the payment in Ottimate and the remittance the vendor receives on the same step.<em style="font-size:0.78rem;color:var(--orange);display:block;margin-top:0.3rem;">⚠️ Note: vCard rebates are not available for grocery clients — for grocery prospects, focus on electronic payment efficiency and one-to-one reconciliation rather than the revenue story.</em></div>
         <div class="two-col">
           <div class="screenshot-wrap"><img src="${BASE}05-B. Payment Methods (vCard Payment).png" alt="vCard Payment" onclick="openLightbox(this.src)"><div class="screenshot-caption">vCard Payment in Ottimate — unique card number per payment</div></div>
           <div class="screenshot-wrap"><img src="${BASE}05-C. Payment Methods (vCard Payment - Remittance).png" alt="vCard Remittance" onclick="openLightbox(this.src)"><div class="screenshot-caption">vCard Remittance — vendor receives full payment details and invoice reference</div></div>
         </div>
         <div class="info-box purple mt-1"><div class="info-box-title">Talk Track — Lead with Revenue</div><em>"The first thing I want to show you is vCard — because this is where Vendor Pay becomes a revenue generator. Every time a vendor accepts a vCard payment, you earn a rebate starting at 25 basis points. Your AP department stops being a cost center and starts contributing to the bottom line. The vendor receives a remittance with all the details — they know exactly what was paid and for which invoices."</em></div>
+        <div class="info-box warn" style="margin-top:0.75rem;"><strong>⚠️ Note:</strong> vCard rebates are not available for grocery clients. For grocery prospects, skip the revenue generator framing and lead with: <em>"vCard eliminates check exposure and gives you one-to-one reconciliation — every payment is tied to a unique card number matched to a specific invoice."</em></div>
       </div>
     </div>
 
@@ -2140,6 +2170,7 @@ function renderModule3() {
           <div class="screenshot-wrap"><img src="${BASE}05-E. Payment Methods (ACH Payment - Remittance).png" alt="ACH Remittance" onclick="openLightbox(this.src)"><div class="screenshot-caption">ACH Remittance — vendor receives payment confirmation and invoice detail</div></div>
         </div>
         <div class="info-box purple mt-1"><div class="info-box-title">Talk Track</div><em>"For vendors who don't accept vCard, ACH is second. Same remittance experience for the vendor — they know what was paid and why. Electronic, fast, and no check printing required."</em></div>
+        <div class="info-box warn mt-1"><div class="info-box-title">⚡ Pro Tip — Invite Check Vendors to ACH</div>Ottimate allows clients to invite their check vendors to enroll in ACH directly from the platform — via <strong>ACH Vendors → Invite to ACH</strong>. The client can search vendors, enter a contact email, and send an invitation in seconds. This is a great moment to highlight because it shows the client has a clear path to reducing check volume over time without any manual coordination.<br><br><em style="color:var(--orange);font-size:0.85rem;">⚠️ Note: This feature still needs to be enabled in the new demo environment — but it should always be talked to in the demo as a key capability.</em></div>
       </div>
     </div>
 
@@ -2219,7 +2250,7 @@ function renderModule3() {
     <div class="m3-section-nav">
       <button class="btn btn-sm btn-secondary" onclick="navM3Tab(6)">← Visibility</button>
       <span class="m3-section-label">Section 8 of 8</span>
-      <span style="flex:1;"></span>
+      <span id="m3-quiz-nav-next" style="flex:1;text-align:right;"></span>
     </div>
   </div>
   `;
@@ -2329,7 +2360,7 @@ function renderModule4() {
     <div class="m3-section-nav">
       <button class="nav-btn" onclick="goToModuleTab('m4-video')">← Video</button>
       <span class="nav-center">Section 4 of 4</span>
-      <span></span>
+      <span id="m4-quiz-nav-next"></span>
     </div>
   </div>
   `;
@@ -2575,7 +2606,7 @@ function renderModule2() {
     <div class="m3-section-nav">
       <button class="nav-btn" onclick="goToModuleTab('m2-demo')">← Demo Positioning</button>
       <span class="nav-center">Section 7 of 7</span>
-      <span></span>
+      <span id="m2-quiz-nav-next"></span>
     </div>
   </div>
   `;
@@ -2603,9 +2634,9 @@ const QUIZ_DATA = {
       },
       {
         q: 'What does "one-to-one reconciliation" mean in the context of Vendor Pay?',
-        opts: ['Each invoice is paid with a unique virtual card number tied to that exact invoice','One Ottimate rep reconciles all payments for one client','Each vendor receives one payment per month','One bank account is used for all payment methods'],
+        opts: ['There is an entry on the bank statement for every payment issued from Ottimate','One Ottimate rep reconciles all payments for one client','Each vendor receives one payment per month','One bank account is used for all payment methods'],
         correct: 0,
-        feedback: 'Every vCard payment has a unique card number tied to the exact invoice amount — making bank reconciliation automatic and eliminating manual matching.'
+        feedback: 'One-to-one reconciliation means every payment issued from Ottimate appears as its own individual entry on the bank statement — no batch lump sums — making month-end matching fast and straightforward.'
       },
       {
         q: 'A prospect says "I like signing checks — it gives me control." Which is the best response?',
@@ -2615,9 +2646,9 @@ const QUIZ_DATA = {
       },
       {
         q: 'Which of the following is the strongest qualifying signal that a prospect is a good Vendor Pay candidate?',
-        opts: ['They currently pay vendors primarily by wire transfer','They have a high volume of invoices from vendors who accept credit cards','They already use an automated AP system from a competitor','They prefer to pay all invoices on Net 90 terms'],
+        opts: ['They currently pay vendors primarily by wire transfer','They have a high volume of invoices from vendors who accept vCards','They already use an automated AP system from a competitor','They prefer to pay all invoices on Net 90 terms'],
         correct: 1,
-        feedback: 'High invoice volume + vendors who accept credit cards = maximum vCard enrollment potential = maximum rebate revenue. This is the core qualification signal.'
+        feedback: 'High invoice volume + vendors who accept vCards = maximum vCard enrollment potential = maximum rebate revenue. This is the core qualification signal.'
       }
     ]
   },
@@ -2637,22 +2668,22 @@ const QUIZ_DATA = {
         feedback: 'The AP Accrual Report is specifically designed for month-end accruals — it shows approved-not-paid invoices organized for accounting entries.'
       },
       {
-        q: 'The Payments Calendar View is most useful for which business need?',
-        opts: ['Seeing which vendors have the most invoices','Forecasting cash flow by visualizing when payments will go out','Identifying duplicate invoices','Tracking price variances from POs'],
+        q: 'What is the primary purpose of the Hot List report in Ottimate?',
+        opts: ['To show which vendors have the highest outstanding invoice balances','To automatically track line-item price changes across vendors and calculate their financial impact','To identify invoices that have been stuck in the approval queue for more than 30 days','To flag vendors who have not yet enrolled in vCard payments'],
         correct: 1,
-        feedback: 'The Calendar View shows scheduled payment dates visually — making it a powerful cash flow planning tool for controllers and CFOs.'
+        feedback: 'The Hot List is a Spend Analysis report that automatically tracks line-item price changes across vendors and calculates the financial impact on the bottom line — answering the question: "Which of my items have gotten more expensive, and how much is that costing me?"'
       },
       {
-        q: 'Which dashboard shows spend versus budget by location over a rolling 30-day period?',
+        q: 'Which dashboard gives multi-location operators a view of spend broken down by location over a rolling 30-day period?',
         opts: ['Hot List Dashboard','12-Month Trend Dashboard','Cost Analysis Dashboard (30-day view)','Vendor Report'],
         correct: 2,
-        feedback: 'The Cost Analysis Dashboard in 30-day view shows location-level spend vs. budget — ideal for multi-location operators managing costs in near real time.'
+        feedback: 'The Cost Analysis Dashboard (30-day view) shows location-level spend data — ideal for multi-location operators who want near real-time visibility into where money is going across their portfolio. Note: Ottimate currently shows spend data only; budget comparison is not a native feature.'
       },
       {
-        q: 'PO Match reports are covered in which training dashboard?',
-        opts: ['Demo 101 — Core AP & Statements','Demo 102 — Vendor Pay & Basic Reports (this dashboard)','A separate PO Match training dashboard','Demo 103 — Advanced Reporting'],
+        q: 'You\'re presenting the reports demo to a Controller. Which report category should you lead with?',
+        opts: ['Spend Analysis Dashboards and the Hot List','The Cost Overages Dashboard to show location-level spend variances','AP Reports — starting with the Accrual Report and AP Aging','Admin Export Reports to highlight raw data access'],
         correct: 2,
-        feedback: 'PO Match reports are intentionally excluded from Demo 102. They are covered in their own dedicated PO Match training module.'
+        feedback: 'Controllers live in reconciliation and period-end closes. Lead with the Accrual Report (approved-not-paid invoices for month-end entries), then move to AP Aging by Invoice and by Vendor. Emphasize that these reports are populated automatically from the data Ottimate already captured — no manual entry required.'
       }
     ]
   },
@@ -2740,12 +2771,14 @@ function renderModuleQuiz(n) {
   const isDone = APP.modulesDone.has(n);
   if (isDone) {
     el.innerHTML = `<div class="info-box win"><div class="info-box-title">✓ Module ${n} Quiz Passed</div>You've already completed this quiz. You can review the questions below.</div>` + renderQuizReadonly(quiz);
+    showQuizNextBtn(n);
     return;
   }
   const state = APP.quizState[n] || { answers: {}, submitted: false, score: 0 };
   APP.quizState[n] = state;
   if (state.submitted) {
     el.innerHTML = renderQuizResult(n, quiz, state);
+    if (state.score >= 3) showQuizNextBtn(n);
     return;
   }
   const letters = ['A','B','C','D'];
@@ -2824,6 +2857,7 @@ function selectQuizAnswer(n, qi, oi) {
   qEl.querySelectorAll('.quiz-option').forEach((el, i) => {
     el.classList.toggle('selected', i === oi);
   });
+  saveState(); // persist in-progress answer so it survives a reload
 }
 
 function submitModuleQuiz(n) {
@@ -2842,10 +2876,11 @@ function submitModuleQuiz(n) {
     APP.modulesDone.add(n);
     saveState();
     updateProgress(); updateSidebar('m'+n);
-    renderModuleQuiz(n);
     const el = document.getElementById('m' + n + '-quiz-content');
     if (el) el.innerHTML = renderQuizResult(n, quiz, state);
+    showQuizNextBtn(n);
   } else {
+    saveState(); // persist failed attempt so answers & result survive a reload
     const el = document.getElementById('m' + n + '-quiz-content');
     if (el) el.innerHTML = renderQuizResult(n, quiz, state);
   }
@@ -2854,6 +2889,20 @@ function submitModuleQuiz(n) {
 function retryModuleQuiz(n) {
   APP.quizState[n] = { answers: {}, submitted: false, score: 0 };
   renderModuleQuiz(n);
+}
+
+function showQuizNextBtn(n) {
+  const el = document.getElementById('m' + n + '-quiz-nav-next');
+  if (!el) return;
+  const nextLabels = {
+    1: { label: 'Module 2: Reports & Dashboards →', action: 'showModule(2)' },
+    2: { label: 'Module 3: Demo Walkthrough →',     action: 'showModule(3)' },
+    3: { label: 'Module 4: Disbursement Workflow →', action: 'showModule(4)' },
+    4: { label: 'Go to Final Exam 🎓',               action: 'tryExam()' }
+  };
+  const next = nextLabels[n];
+  if (!next) return;
+  el.innerHTML = `<button class="nav-btn" onclick="${next.action}" style="background:var(--teal);color:var(--white);border-color:var(--teal);">${next.label}</button>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2866,330 +2915,270 @@ const EXAM_QUESTIONS = [
   // Q1 — 3 pts
   {
     pts: 3,
-    q: 'What is the primary financial benefit of Vendor Pay for Ottimate clients?',
+    q: 'When Ottimate executes a physical check on behalf of a client, which banking and authorization details are used on the check face?',
     opts: [
-      'Reduced invoice processing labor costs',
-      'Virtual card rebate revenue shared directly with the client',
-      'Lower bank wire fees',
-      'Faster vendor payment terms'
+      'The check features Ottimate\'s generic bank stock and routing info to keep the client\'s account details private from the vendor.',
+      'The check uses the client\'s own banking information and check stock, with support of only 1 digital signature authorized by the client.',
+      'The check is issued from a centralized Ottimate clearing account, but carries the client\'s business name and logo for brand recognition.',
+      'The check uses the client\'s own banking information and check stock, featuring up to 2 of the client\'s authorized digital signatures.'
     ],
-    correct: 1,
-    feedback: 'The headline financial story of Vendor Pay is the vCard rebate revenue that Ottimate shares directly with clients — turning a cost center into a revenue generator.'
+    correct: 3,
+    feedback: 'Ottimate\'s Vendor Pay issues payments direct from the client\'s bank accounts. For check payments, this means that Ottimate will also issue checks on the client\'s check stock, which will contain the client\'s banking information, and digital signature (up to 2 signatures can be supported).'
   },
   // Q2 — 3 pts
   {
     pts: 3,
-    q: 'True or False: Vendor Pay can only be supported by clients whose ERP can directly import payments from third-party systems.',
+    q: 'If the Client\'s ERP or Accounting System does not support payments being imported and applied from a third-party application, then Vendor Pay cannot be supported.',
     opts: ['True', 'False'],
     correct: 1,
-    feedback: 'FALSE. The Disbursement Workflow enables Vendor Pay even for ERPs that cannot import payments from third-party systems. The ERP exports a payment register file, which is then imported into Ottimate.'
+    feedback: 'While Ottimate\'s standard Vendor Pay workflow requires the ERP or Accounting system can import and apply payments, Ottimate can also support a disbursement workflow for Vendor Pay.\n\nDisbursement workflows allow clients who cannot import and apply payments to create the payments inside the ERP or Accounting System and then export a disbursement file, which can subsequently be imported into Ottimate. Upon import of the disbursement file into Ottimate, the payments contained in the file will be automatically applied to the corresponding invoice(s) and routed for approval. Once approved, payments will be scheduled and issued.\n\nNote: to confirm support of a disbursement workflow, the client must provide a sample disbursement file for the payment team to review and approve (disbursement files must be provided in either a CSV or excel format).'
   },
   // Q3 — 3 pts
   {
     pts: 3,
-    q: 'In the Vendor Pay payment method prioritization, which sequence is correct?',
+    q: 'Which basic report should a finance team pull to view invoices that have been uploaded but have not been exported during the specified period?',
     opts: [
-      'ACH → vCard → Check',
-      'Check → ACH → vCard',
-      'vCard → ACH → Check',
-      'vCard → Check → ACH'
+      'AP Aging by Vendor',
+      'Invoice Workflow Count',
+      'Hot List Report',
+      'Accrual Report'
     ],
-    correct: 2,
-    feedback: 'vCard is always first (generates rebate revenue), ACH second (free, fast, electronic), Check last (highest cost, slowest). This hierarchy maximizes client revenue.'
+    correct: 3,
+    feedback: 'The Accrual Report is used to show invoices that were uploaded to Ottimate but not exported during the specified accrual period.\n\nDescriptions of the Other Reports:\n- AP Aging by Vendor: AP report showing amount due by vendor\n- Invoice Workflow Count: AP report showing invoice count by workflow stage.\n- Hot List Report: Spend analysis report for keeping track of price changes for different items'
   },
   // Q4 — 3 pts
   {
     pts: 3,
-    q: 'What makes Ottimate\'s virtual card reconciliation "one-to-one"?',
-    opts: [
-      'One Ottimate employee handles reconciliation for each client',
-      'Each virtual card number is unique to a single invoice and matches the exact invoice amount',
-      'One monthly statement reconciles all virtual card transactions',
-      'Virtual cards are matched one-to-one against check payments'
-    ],
+    q: 'The \'Calendar View\' in Vendor Pay provides a visual snapshot of payments and payment statuses, excluding offline payments.',
+    opts: ['True', 'False'],
     correct: 1,
-    feedback: 'Each vCard payment gets a unique card number tied to the exact invoice — making bank reconciliation automatic because every transaction matches exactly to one invoice.'
+    feedback: 'Offline Payments are also shown in the Calendar View (there are multiple ways to mark invoices as paid when using offline payment methods, including on the individual invoice or on all invoices for a specific vendor in the vendor center).\n\nPro Tip: Approvers can also approve payments that are pending approval directly from the calendar view.'
   },
   // Q5 — 3 pts
   {
     pts: 3,
-    q: 'Which report would a controller use to prepare month-end accrual journal entries?',
-    opts: [
-      'AP Aging by Vendor',
-      'Vendor Report',
-      'AP Accrual Report',
-      'Admin Export Report'
-    ],
+    q: 'How far in advance can users schedule payments with Vendor Pay?',
+    opts: ['Up to 30 days', 'Up to 6 months', 'Up to 1 year', 'Up to 5 years'],
     correct: 2,
-    feedback: 'The AP Accrual Report shows approved-not-yet-paid invoices, organized for month-end accrual entries — it\'s the go-to report for controllers closing the books.'
+    feedback: 'Payments can be scheduled up to 1 year in advance with Vendor Pay. Note: funds will not leave the client\'s account until the payment has been issued and received by the vendor.'
   },
   // Q6 — 3 pts
   {
     pts: 3,
-    q: 'A prospect manages 12 restaurant locations and wants to track whether each location is staying within food cost budget. Which Ottimate feature is most relevant?',
-    opts: [
-      'AP Aging by Invoice report',
-      'Location-Based Spend Management with the Locations View',
-      'The Vendor Report',
-      'Admin Export Reports'
-    ],
+    q: 'Vendor Pay supports multiple bank accounts per location in Ottimate.',
+    opts: ['True', 'False'],
     correct: 1,
-    feedback: 'The Locations View in Vendor Pay shows spend vs. budget by location — giving multi-location operators exactly the portfolio visibility and per-location control they need.'
+    feedback: 'Ottimate supports 1 bank account per location in Ottimate.'
   },
   // Q7 — 3 pts
   {
     pts: 3,
-    q: 'The Payments Calendar View is primarily used for:',
-    opts: [
-      'Scheduling vendor enrollment outreach',
-      'Visualizing when payments will go out for cash flow planning',
-      'Setting up recurring invoice templates',
-      'Managing user approval permissions by date'
-    ],
-    correct: 1,
-    feedback: 'The Calendar View shows upcoming payment dates visually — making it a powerful cash flow planning tool that CFOs and controllers immediately understand.'
+    q: 'Which of the following is NOT a standard payment method offered in Ottimate\'s Vendor Pay?',
+    opts: ['Virtual Cards (vCards)', 'ACH Transfers', 'Physical Checks', 'Corporate Credit Cards'],
+    correct: 3,
+    feedback: 'Corporate credit cards are not a supported method of payment in Vendor Pay. Note: Ottimate\'s Spend Management solution does support corporate cards (Spend Management is covered in Level 2 Demo Training & Certification).'
   },
   // Q8 — 3 pts
   {
     pts: 3,
-    q: 'Which dashboard shows rolling 30-day spend vs. budget by category and location?',
-    opts: [
-      'Hot List Dashboard',
-      '12-Month Trend Dashboard',
-      'Cost Analysis Dashboard',
-      'AP Aging Dashboard'
-    ],
-    correct: 2,
-    feedback: 'The Cost Analysis Dashboard (30-day view) shows near-real-time spend vs. budget — perfect for operators who want to catch overages before they compound.'
+    q: 'Only invoices that have been fully approved in the main invoice workflow will appear in the Vendor Pay dashboard.',
+    opts: ['True', 'False'],
+    correct: 0,
+    feedback: 'Unapproved invoices will be available in Core AP, but only fully approved invoices will flow into Vendor Pay as unpaid invoices.'
   },
   // Q9 — 3 pts
   {
     pts: 3,
-    q: 'What does the Hot List Dashboard highlight?',
+    q: 'How do Vendor Pay transactions appear in the client\'s bank account to simplify month-end close?',
     opts: [
-      'Vendors with the highest payment volumes',
-      'Invoices flagged for duplicate or exception review',
-      'Items with the highest price variance or anomalous spend patterns',
-      'The top 10 most frequently paid invoices'
+      'As a batched funding event containing all payments for that business day',
+      'As a one-to-one transaction, matching the individual invoice amount',
+      'As a consolidated daily withdrawal categorized by the specific payment type',
+      'As a one-to-one transaction, matching the individual payment amount'
     ],
-    correct: 2,
-    feedback: 'The Hot List flags items with unusual price variances or anomalous spend — it\'s the AI-powered exception report that helps operators identify cost issues immediately.'
+    correct: 3,
+    feedback: 'Vendor Pay transactions appear in the client\'s bank account as one-to-one transactions, matching the individual PAYMENT amount. Please note that if the payment was for one invoice, it could also match the individual invoice amount, but multiple invoices can be paid with a single payment, and credit memos can also be applied to payments. Additionally, Vendor Pay can support partial payments and prompt payment discounts.\n\nNote: the one-to-one transaction is often a differentiator for Ottimate as many other payment solutions batch the payments.'
   },
   // Q10 — 3 pts
   {
     pts: 3,
-    q: 'In Act 1 of the Vendor Pay demo walkthrough, what is the first screen you navigate to?',
-    opts: [
-      'The Spend Analysis Dashboard',
-      'The Locations View',
-      'The Unpaid Invoices Dashboard',
-      'The Payments Calendar'
-    ],
-    correct: 2,
-    feedback: 'Act 1 begins on the Unpaid Invoices Dashboard — it establishes the scope of what needs to be paid and sets the stage for the full payment run walkthrough.'
+    q: 'Vendor Pay uses the same approval policies as the core invoice processing side of the platform.',
+    opts: ['True', 'False'],
+    correct: 1,
+    feedback: 'Vendor Pay has its own distinct approval workflow separate from invoice approvals.'
   },
   // Q11 — 3 pts
   {
     pts: 3,
-    q: 'During a demo, a prospect asks "Can I control which team members can approve payments over a certain dollar amount?" What is the correct answer?',
+    q: 'What is the primary purpose of the \'Hot List\' reporting feature?',
     opts: [
-      'No — all users have the same approval permissions',
-      'Yes — approval thresholds and user permissions are configurable in Ottimate',
-      'Yes — but only for ACH payments, not vCard',
-      'Only administrators can approve any payments'
+      'To track the speed of invoice approval by department',
+      'To identify the highest-spending locations across the organization',
+      'To monitor line-item price fluctuations and their impact on the bottom line',
+      'To flag vendors who refuse electronic payments and require paper checks'
     ],
-    correct: 1,
-    feedback: 'Ottimate supports configurable approval workflows and user permissions — you can set thresholds, approval chains, and role-based access to match the client\'s internal controls.'
+    correct: 2,
+    feedback: ''
   },
   // Q12 — 3 pts
   {
     pts: 3,
-    q: 'The AP Aging by Invoice report differs from AP Aging by Vendor in that it:',
-    opts: [
-      'Shows amounts owed by the client to vendors, not by vendors to clients',
-      'Breaks aging down at the individual invoice level rather than consolidating by vendor',
-      'Only shows invoices over 60 days past due',
-      'Is only available to administrators'
-    ],
-    correct: 1,
-    feedback: 'AP Aging by Invoice shows each outstanding invoice individually with its age — useful for invoice-level analysis. AP Aging by Vendor consolidates all balances by vendor — useful for total exposure review.'
+    q: 'Once a payment is approved and issued in Vendor Pay, it moves to the \'Pending Export\' bucket where it waits to be synced with the client\'s ERP.',
+    opts: ['True', 'False'],
+    correct: 0,
+    feedback: 'Once a payment is approved, it will be sent to the "Scheduled Payments" bucket. When a payment is approved AND issued, it will be sent to the "Pending Export" bucket (this bucket may also be referred to as the "Approved" bucket). For ERPs with an API integration, these payments can be automatically exported to the ERP on a scheduled basis (otherwise, users can select and export payments from this bucket with the click of a button).'
   },
   // Q13 — 3 pts
   {
     pts: 3,
-    q: 'What is the recommended narrative close after showing the Spend Analysis dashboard in Act 5?',
-    opts: [
-      'And that wraps up the Ottimate platform — any questions?',
-      'This data flows automatically from the detailed line-item data Ottimate captured from your invoices — you get rich reporting without any extra work',
-      'This is our most advanced feature and requires a premium tier',
-      'You can export all of this to Excel for your own analysis'
-    ],
-    correct: 1,
-    feedback: 'This closing line ties line-item AI extraction directly to reporting value — showing that Ottimate\'s upstream data quality is what makes these reports possible, with no extra effort from the prospect.'
+    q: 'Ottimate provides standard AP Aging reports broken down by which two primary categories?',
+    opts: ['Location and Department', 'GL Code and Class', 'Invoice and Vendor', 'User and Approval Status'],
+    correct: 2,
+    feedback: 'AP Aging reports are available by:\n- Invoice (which shows unpaid invoices by age)\n- Vendor (which shows amount due by vendor)\n\nNote: Approval Aging, which shows approval aging by user, is available under Operational Efficiency reports (and also pinned to the home dashboard).'
   },
   // Q14 — 3 pts
   {
     pts: 3,
-    q: 'Which of the following is the strongest qualifying signal for Vendor Pay?',
-    opts: [
-      'The prospect currently pays all vendors by wire transfer',
-      'The prospect has high invoice volume and many vendors who accept credit cards',
-      'The prospect already uses a competing AP automation tool',
-      'The prospect prefers Net 90 payment terms with all vendors'
-    ],
+    q: 'Clients control the payment methods and have the option to choose what payment method they want to use when creating payments in Vendor Pay.',
+    opts: ['True', 'False'],
     correct: 1,
-    feedback: 'High invoice volume + vendors who accept credit cards = maximum vCard enrollment potential = maximum rebate revenue. This combination is the clearest Vendor Pay qualifying signal.'
+    feedback: 'Ottimate controls the decisioning for payment methods, using the following hierarchy:\n1. vCards: if the Vendor accepts vCard payments (and does not apply fees to the client), this will be the preferred method of payment (this is also the only method of payment where the client can receive rebates).\n2. ACH: if the vendor does not accept vCards (or applies fees for vCard payments), then the next method of payment that will be prioritized, when available, is ACH. (Note that given Ottimate\'s funding model, ACH payments typically process in 3-5 days, with the fast ACH option allowing for same day/next day ACH payments)\n3. Check: physical checks are used for vendors that do not accept vCard or ACH payments. Check payments are the lowest in the hierarchy. They also take the longest to process, are the least secure, and the client must own the reconciliation on checks, as Ottimate loses visibility as soon as the checks are issued and mailed via USPS.\n\nNote: since the payment method is controlled by Ottimate\'s decisioning, they cannot control or change the payment method when creating or approving a payment. However, clients can invite vendors to ACH right through the platform to help convert vendors currently paid by check to ACH payments.'
   },
   // Q15 — 3 pts
   {
     pts: 3,
-    q: 'PO Match reports in Ottimate are:',
+    q: 'What are the specific documentation limits when attaching supporting documents to a payment in Vendor Pay?',
     opts: [
-      'Covered in Demo 102 — Vendor Pay & Basic Reports',
-      'Not available in Ottimate',
-      'Covered in a separate dedicated PO Match training module',
-      'Part of the AP Aging report family'
+      'Users can attach up to 10 individual invoice images or a single supporting PDF document with no page limit.',
+      'Users can select up to 5 invoice images or upload a single supporting document containing up to 5 pages.',
+      'Users can upload unlimited supporting pages to payments as long as the attachment size is under 5MB.',
+      'Including attachments with payments is not supported'
     ],
-    correct: 2,
-    feedback: 'PO Match reports are intentionally excluded from Demo 102 and covered in their own dedicated PO Match training dashboard.'
+    correct: 1,
+    feedback: 'When approving a payment, users have the option of selecting attachments to include with the payment. Users can select up to 5 images from the invoice(s) included in the payment, or they can upload with up to 5 pages to attach to the payment.'
   },
   // Q16 — 5 pts
   {
     pts: 5,
-    q: 'A prospect\'s controller says: "We\'re a NetSuite shop and our ERP can apply payments from third-party systems, but our IT team says it would take 6 months to set up the integration." How should you respond?',
+    q: 'What is a key capability of the \'Locations\' view in Vendor Pay and why is it a preferred view by many clients?',
     opts: [
-      'Tell them to wait 6 months and come back when IT is ready',
-      'Suggest they switch to a simpler ERP',
-      'Explain that Ottimate\'s Disbursement Workflow can bridge the gap — the client exports a payment register from NetSuite, imports it into Ottimate, and payments are issued from Ottimate while the IT project proceeds in parallel',
-      'Agree that the integration complexity makes Vendor Pay impractical for them'
+      'It visualizes total payables by location to help manage site-specific budgets.',
+      'It tracks employee payroll hours and labor costs for each physical branch.',
+      'It automatically executes pending invoices to prevent late fees at the site level.',
+      'It allows users to bulk edit GL codes for all invoices assigned to a specific site.'
     ],
-    correct: 2,
-    feedback: 'The Disbursement Workflow is designed exactly for this gap — it removes the dependency on ERP integration timing, letting the client get value from Vendor Pay immediately while IT works on the full integration.'
+    correct: 0,
+    feedback: ''
   },
   // Q17 — 5 pts
   {
     pts: 5,
-    q: 'A CFO prospects asks: "How do I know Ottimate isn\'t just going to lose me money on card fees?" What is the most complete answer?',
+    q: 'When positioning Vendor Pay, select the statement that represents \'Value Selling\' over \'Feature Dumping\'.',
     opts: [
-      'Reassure them that card fees are minimal and rarely an issue',
-      'Explain that vCard rebate revenue shared by Ottimate typically exceeds any processing costs, and the net result is a revenue gain — not a cost. Provide a rough ROI estimate based on their invoice volume.',
-      'Acknowledge the concern and offer to reduce the vCard enrollment target',
-      'Tell them to ask their bank about fee structures'
+      'Vendor Pay allows you to pay your vendors using Virtual Cards, ACH, and checks, and it integrates with your ERP.',
+      'By utilizing vCards, you can turn AP into a revenue generator, while one-to-one reconciliation gives your controllers their time back.',
+      'You can filter your unpaid invoices by location or vendor and select which ones you want to schedule a year in advance.',
+      'The platform includes a dedicated approval workflow for payments where you can use arrow keys to cycle through transactions.'
     ],
     correct: 1,
-    feedback: 'The CFO objection is about net economics. The complete answer addresses the full picture: rebate revenue > processing fees = net positive. Anchoring to their invoice volume makes it concrete and credible.'
+    feedback: ''
   },
   // Q18 — 5 pts
   {
     pts: 5,
-    q: 'You\'re demoing Ottimate Vendor Pay to a 20-location restaurant group. Their VP of Finance interrupts and says: "We tried a payment automation tool 3 years ago and our vendors hated it. Half of them refused to enroll." How do you handle this?',
+    q: 'In a demo, what is the primary impact of showing a prospect how to \'deselect\' invoices in the Locations View?',
     opts: [
-      'Skip the Vendor Pay section and focus only on AP automation',
-      'Acknowledge the past experience, validate the concern, then explain that Ottimate manages vendor enrollment on the client\'s behalf — including outreach, education, and ongoing support — and that most vendors prefer vCard because they get paid faster',
-      'Tell them their vendors will be different this time',
-      'Offer to exclude vendor enrollment from the contract'
+      'It demonstrates how users can set hard limits on the total monthly spend for the company.',
+      'It proves how intuitive the UI is for removing unapproved invoices from a payment batch.',
+      'It demonstrates real-time budget management by showing how to stay under a location\'s spending cap.',
+      'It shows that invoices can be instantly deleted from the system to clean up the dashboard.'
     ],
-    correct: 1,
-    feedback: 'This is a trust objection rooted in a real past failure. Validating it first builds credibility. Then shifting to Ottimate\'s managed enrollment service and the vendor benefit (faster payment) addresses the root cause of the prior failure.'
+    correct: 2,
+    feedback: ''
   },
   // Q19 — 5 pts
   {
     pts: 5,
-    q: 'During a demo, you\'re showing the Spend Analysis dashboard and the prospect says "We already get reports from our ERP — why do we need this?" What is your best response?',
+    q: 'When discussing check payments, what is the main benefit to highlight for Finance Controllers?',
     opts: [
-      'Agree that if they\'re happy with ERP reports, they may not need Ottimate\'s reporting',
-      'Explain that Ottimate\'s reports are built on line-item invoice data automatically captured by AI — giving them vendor-level, category-level, and price variance insights that ERP reports (which rely on manually coded GL entries) cannot provide',
-      'Tell them Ottimate\'s UI is easier to use than their ERP',
-      'Focus on the Calendar View instead, since it\'s different from ERP reports'
+      'The client maintains complete control of their float and banking information',
+      'Checks reach vendors just as fast as ACH due to our expedited fulfillment',
+      'Enhanced privacy is achieved by using Ottimate\'s bank info on the check face',
+      'Custom check stock options are available for different check types & locations'
     ],
-    correct: 1,
-    feedback: 'The ERP reporting objection is best answered with a data quality argument: ERP reports show what was coded; Ottimate shows what was actually on the invoice. Line-item AI extraction is the differentiator that makes the reporting uniquely valuable.'
+    correct: 0,
+    feedback: ''
   },
   // Q20 — 5 pts
   {
     pts: 5,
-    q: 'A prospect says: "I\'m concerned about giving up control — right now I personally sign every check." This is best handled by:',
+    q: 'What is the strongest rebuttal to a prospect who says, "I like the control of signing physical checks"?',
     opts: [
-      'Offering to keep physical check signing for the largest invoices',
-      'Acknowledging the control need, then demonstrating how Ottimate\'s configurable approval workflows replicate and actually enhance control — with full audit trails, mobile approval, threshold-based routing, and the bonus of eliminating check fraud risk and manual labor',
-      'Explaining that check signing is inefficient and they need to modernize',
-      'Focusing only on the time savings and ignoring the control concern'
+      '"Digital fulfillment eliminates the risk of check washing and mail intercept fraud inherent in the physical mail stream."',
+      '"Manual signing is a low-value administrative task that prevents high-level executives from focusing on financial strategy."',
+      '"You retain the exact same \'Yes/No\' authority through digital approvals, but with the added benefit of an immutable audit trail."',
+      '"Most modern ERP systems and accounting standards are phasing out physical checks in favor of fully electronic workflows."'
     ],
-    correct: 1,
-    feedback: 'The "I sign checks" objection is about control, not checks. Validating it and showing how digital approval workflows give MORE control (audit trail, mobile, thresholds) — while adding the fraud risk and labor benefits — is the complete answer.'
+    correct: 2,
+    feedback: ''
   },
   // Q21 — 5 pts
   {
     pts: 5,
-    q: 'You are in Act 4 of the demo showing the one-to-one reconciliation advantage. A skeptical CFO asks: "So how does this actually work in my bank statement?" What do you do?',
-    opts: [
-      'Tell them to ask their bank for a demo of the reconciliation process',
-      'Show the unique vCard number on the Ottimate payment record, then show how that same number appears as a line item in the bank statement with the exact dollar amount — demonstrating that no manual matching is needed',
-      'Explain the concept verbally without showing the bank statement',
-      'Skip to the reports section where you can show more concrete data'
-    ],
-    correct: 1,
-    feedback: 'Proof beats explanation. Showing the vCard number in Ottimate and then finding the exact same number in the bank statement is the visual proof that one-to-one reconciliation actually works — this is the moment the CFO\'s skepticism typically breaks.'
+    q: 'The Calendar View in Vendor Pay is considered a \'nice visual closer\' that helps prospects realize how easy forecasting and cash flow planning can be.',
+    opts: ['True', 'False'],
+    correct: 0,
+    feedback: ''
   },
   // Q22 — 5 pts
   {
     pts: 5,
-    q: 'Which combination of reports would you show to a CFO who is concerned about both cash flow timing and vendor spend concentration risk?',
+    q: 'When pitching Virtual Cards (vCards), which key \'revenue story\' should be highlighted?',
     opts: [
-      'AP Accrual Report + Vendor Report',
-      'Payments Calendar View + AP Aging by Vendor',
-      'Admin Export + Hot List Dashboard',
-      'AP Aging by Invoice + Cost Analysis Dashboard'
+      'VCards carry a small fee but drastically increase payment security.',
+      'VCards extend your DPO, allowing you to hold onto your cash for longer.',
+      'Most vendors in your industry now prefer vCards over traditional ACH.',
+      'VCard rebates convert your AP department from a cost center into a profit center.'
     ],
-    correct: 1,
-    feedback: 'Calendar View addresses cash flow timing (when will money go out), AP Aging by Vendor addresses concentration risk (how much is owed to which vendors). This pairing directly answers both CFO concerns.'
+    correct: 3,
+    feedback: ''
   },
   // Q23 — 5 pts
   {
     pts: 5,
-    q: 'A prospect has 3 locations and runs $400K/month through AP. Their current vendor mix is roughly 60% vendors who accept credit cards. Approximately what annual rebate revenue range would you present to this prospect?',
-    opts: [
-      '$1,000 – $5,000/year',
-      '$5,000 – $15,000/year',
-      '$15,000 – $50,000/year or more, depending on enrollment success',
-      '$100,000+/year guaranteed'
-    ],
-    correct: 2,
-    feedback: '$400K/month × 60% vCard-eligible = ~$240K/month in potential vCard volume. At typical rebate rates, annual rebate revenue in the $15K–$50K+ range is realistic — making this a meaningful financial story for a mid-size operator.'
+    q: 'When demonstrating Vendor Pay, it is best to skip over the "one-to-one reconciliation" piece because controllers typically do not care about how bank statements look.',
+    opts: ['True', 'False'],
+    correct: 1,
+    feedback: 'This is a benefit of Ottimate\'s payment model & differentiator; controllers love it because it makes bank reconciliation manageable (many other payment solutions batch the payments, making reconciliation more difficult).'
   },
   // Q24 — 5 pts
   {
     pts: 5,
-    q: 'In the Disbursement Workflow, what triggers the payment run in Ottimate?',
+    q: 'How should you position the "Hot List" during the Reporting section of the demo?',
     opts: [
-      'Ottimate automatically detects when invoices are due and initiates payment',
-      'The ERP sends a real-time API call to Ottimate when payments are approved',
-      'The client\'s AP team exports a payment register file from the ERP and imports it into Ottimate, where payments are then approved and issued',
-      'Vendors submit invoices directly to Ottimate, bypassing the ERP entirely'
+      'As an automated tool that tracks item price changes and calculates their financial impact.',
+      'As a performance tracker to monitor how quickly chefs and managers enter data',
+      'As an optional reporting add-on that provides deeper competitive market insights',
+      'As a manual entry tool used to flag vendors who have high error rates on invoices'
     ],
-    correct: 2,
-    feedback: 'In the Disbursement Workflow, the ERP remains the source of truth — it generates the payment register. That file is imported into Ottimate, where the AP team approves and issues the payments. The ERP is not updated with payment confirmation data (that\'s the limitation the workflow addresses).'
+    correct: 0,
+    feedback: ''
   },
   // Q25 — 5 pts
   {
     pts: 5,
-    q: 'You\'ve completed a full Vendor Pay & Basic Reports demo. The prospect says: "This looks great but I need to talk to my partner before moving forward." What is the ideal next step you propose?',
-    opts: [
-      'Tell them to call you when they\'re ready',
-      'Send a generic follow-up email with the product overview deck',
-      'Propose a specific follow-up meeting that includes the partner, offer to prepare a customized ROI summary with their actual AP volume, and confirm a date before leaving the call',
-      'Ask them to sign an NDA first so you can share more detailed pricing'
-    ],
-    correct: 2,
-    feedback: 'The ideal next step keeps momentum, brings the decision-maker in, and gives you a concrete deliverable (ROI summary) that creates a reason to meet again. Vague "call me when ready" responses kill deals. Confirm the date before you hang up.'
+    q: 'A strong way to close the Reports & Dashboards demo is to remind the prospect that all of the rich data they are seeing flows automatically from all the detailed header and line item details that Ottimate captured from their processed invoices, adding visibility and insights without adding extra work.',
+    opts: ['True', 'False'],
+    correct: 0,
+    feedback: 'Ottimate\'s ability to extract header data, as well as detailed line item data from the invoice, coupled with the fact that it supports dimension mapping and item splits at the line level, is a competitive advantage and differentiator.\n\nAll of this comes together with Ottimate\'s dashboards and reports, which use all this granular invoice data to help provide clients with robust analysis and insights on their spending (direct from their vendor invoices!).\n\nThis is a great opportunity to highlight that fact and use it to drive home the real value that Ottimate provides, and to differentiate it from its competitors (many of whom do not provide the same level of line item extraction, mapping, or even multi-entity/multi-location support that Ottimate offers).'
   },
   // Q26 — unscored comfort scale
   {
     pts: 0,
-    q: 'On a scale of 1–10, how comfortable do you feel demoing Vendor Pay & Basic Reports to a live prospect right now?',
-    opts: ['1 — Not at all comfortable','2','3','4','5 — Somewhat comfortable','6','7','8','9','10 — Completely confident'],
+    q: 'How comfortable do you feel with demoing Ottimate\'s Vendor Pay & Standard Reports/Dashboards?',
+    opts: ['1','2','3','4','5','6','7','8','9','10'],
     correct: -1, // unscored
-    feedback: 'This question is unscored. Your response helps us understand where additional coaching or practice may be helpful.'
+    feedback: ''
   }
 ];
 
@@ -3200,7 +3189,7 @@ function renderExam() {
   document.getElementById('main-area').innerHTML = `
   <div class="page-hero navy-hero">
     <h1>📋 Final Certification Exam</h1>
-    <p>26 questions • 95 points possible • Pass score: 76 points (80%) • Complete all 4 modules to unlock</p>
+    <p>25 questions • 95 points possible • Pass score: 76 points (80%) • Complete all 4 modules to unlock</p>
   </div>
   <div id="exam-wrap"></div>`;
   renderExamContent();
@@ -3254,6 +3243,7 @@ function selectExamAnswer(qi, oi) {
   optsEl.querySelectorAll('.quiz-option').forEach((el, i) => {
     el.classList.toggle('selected', i === oi);
   });
+  saveState(); // persist in-progress exam answer so it survives a reload
 }
 
 function selectComfort(qi, oi) {
@@ -3263,6 +3253,7 @@ function selectComfort(qi, oi) {
   optsEl.querySelectorAll('.quiz-option').forEach((el, i) => {
     el.classList.toggle('selected', i === oi);
   });
+  saveState(); // persist comfort scale answer
 }
 
 function submitExam() {
