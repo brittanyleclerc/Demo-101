@@ -476,6 +476,8 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
   * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('SDzJ6yAVUUycmpKwD');</script>
 </head>
 <body>
 
@@ -489,15 +491,15 @@ input[type="text"]:focus { outline: none; border-color: var(--teal); }
       <div class="gate-lock">🔒</div>
       <div class="gate-badge">PRE-REQUISITE REQUIRED</div>
       <h2>Demo 101 Certification Required</h2>
-      <p>To access the Vendor Pay & Basic Reporting training, you must first complete the <strong>Core AP + Statements</strong> certification (Demo 101).</p>
-      <a href="demo-training.html" class="btn btn-primary btn-full" style="margin-bottom:0.75rem;">Go to Demo 101 Training →</a>
+      <p>Demo 102 builds on Demo 101. You must earn your <strong>Core AP + Statements</strong> certification before accessing this training. Head back to the portal to get started.</p>
+      <a href="portal.html" class="btn btn-primary btn-full" style="margin-bottom:0.75rem;">← Return to Training Portal</a>
       <hr class="gate-divider">
-      <p class="gate-bypass">Already certified? <a onclick="showBypassConfirm()">Click here to confirm and continue</a></p>
+      <p class="gate-bypass">Completed Demo 101 on another device? <a onclick="showBypassConfirm()">Click here to continue</a></p>
     </div>
     <div id="gate-confirm-view" style="display:none;">
       <div class="gate-lock">✅</div>
       <h2 style="margin-bottom:0.75rem;">Confirm Your Certification</h2>
-      <p style="margin-bottom:1.5rem;">Please confirm that you have completed and passed the <strong>Demo 101 (Core AP + Statements)</strong> certification before continuing.</p>
+      <p style="margin-bottom:1.5rem;">Please confirm that you have completed and passed the <strong>Demo 101 (Core AP + Statements)</strong> certification on another device or browser before continuing.</p>
       <button class="btn btn-primary btn-full" onclick="confirmBypass()" style="margin-bottom:0.65rem;">Yes, I'm certified — Continue →</button>
       <button class="btn btn-secondary btn-full" onclick="cancelBypass()">← Go back</button>
     </div>
@@ -647,6 +649,39 @@ function checkD101Complete() {
   return true;
 }
 
+// ── EmailJS helpers ──────────────────────────────────────────
+const EMAILJS_SVC  = 'service_fpds6be';
+const EMAILJS_CERT = 'template_zpocku5';
+const EMAILJS_BYPASS = 'template_aizkufe';
+
+function sendEmailCertification() {
+  try {
+    const pct = Math.round((APP.examScore / 95) * 100);
+    const vertLabels = APP.verticals.map(v => VERTICAL_LABELS[v] || v).join(', ') || 'N/A';
+    emailjs.send(EMAILJS_SVC, EMAILJS_CERT, {
+      user_name:     APP.name,
+      user_role:     APP.role,
+      training_name: 'Demo 102 — Vendor Pay & Basic Reporting',
+      cert_score:    APP.examScore + '/95 (' + pct + '%)',
+      cert_date:     APP.certDate,
+      user_verticals: vertLabels
+    });
+  } catch(e) {}
+}
+
+function sendEmailBypass(name, role) {
+  try {
+    emailjs.send(EMAILJS_SVC, EMAILJS_BYPASS, {
+      user_name:   name  || 'Not yet provided',
+      user_role:   role  || 'Not yet provided',
+      bypass_time: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })
+    });
+  } catch(e) {}
+}
+
+// ── Gate bypass ───────────────────────────────────────────────
+let _bypassConfirmed = false; // session-only flag, not persisted
+
 function showBypassConfirm() {
   document.getElementById('gate-default-view').style.display = 'none';
   document.getElementById('gate-confirm-view').style.display = 'block';
@@ -656,7 +691,17 @@ function cancelBypass() {
   document.getElementById('gate-default-view').style.display = 'block';
 }
 function confirmBypass() {
-  localStorage.setItem('ottimate_d102_bypass', '1');
+  _bypassConfirmed = true;
+  // Pull name/role from any existing profile so the email is informative
+  let bName = '', bRole = '';
+  try {
+    const sources = ['ottimate_demo_state','ottimate_fundamentals_state','ottimate_d102_state'];
+    for (const k of sources) {
+      const s = JSON.parse(localStorage.getItem(k) || 'null');
+      if (s && s.name) { bName = s.name; bRole = s.role || ''; break; }
+    }
+  } catch(e) {}
+  sendEmailBypass(bName, bRole);
   document.getElementById('screen-gate').classList.remove('active');
   initApp();
 }
@@ -665,6 +710,19 @@ function confirmBypass() {
 // INIT
 // ══════════════════════════════════════════════════════════
 function initApp() {
+  // ── Gate: require Demo 101 certification ─────────────────
+  if (!_bypassConfirmed) {
+    let d101Certified = false;
+    try {
+      const d1 = JSON.parse(localStorage.getItem('ottimate_demo_state') || 'null');
+      if (d1 && d1.examPassed) d101Certified = true;
+    } catch(e) {}
+    if (!d101Certified) {
+      document.getElementById('screen-gate').classList.add('active');
+      return;
+    }
+  }
+
   // Try to restore state
   try {
     const saved = JSON.parse(localStorage.getItem('ottimate_d102_state') || 'null');
@@ -732,7 +790,7 @@ function initApp() {
       prereqEl.innerHTML = '✅ Demo 101 (Core AP + Statements) complete — you\'re cleared for Demo 102!';
     } else {
       prereqEl.className = 'prereq-note prereq-warn';
-      prereqEl.innerHTML = '⚠️ <strong>Heads up:</strong> Demo 102 builds on Demo 101. Please complete <a href="demo-training.html" style="color:var(--navy);font-weight:600;text-decoration:underline;">Demo 101 (Core AP + Statements)</a> before starting this training.';
+      prereqEl.innerHTML = '⚠️ <strong>Heads up:</strong> Demo 102 builds on Demo 101. Please complete <a href="portal.html" style="color:var(--navy);font-weight:600;text-decoration:underline;">Demo 101 (Core AP + Statements)</a> via the Training Portal before starting this training.';
     }
   }
 
@@ -3277,6 +3335,7 @@ function submitExam() {
   saveState();
   if (APP.examPassed) {
     updateSidebar('exam');
+    sendEmailCertification();
   }
   const wrap = document.getElementById('exam-wrap');
   if (wrap) renderExamResults(wrap);
