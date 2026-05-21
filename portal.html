@@ -456,7 +456,7 @@ function getState() {
 
 function updatePortal() {
   const s = getState();
-  const d101Complete = s.d101.passed || localStorage.getItem('ottimate_d102_bypass') === '1';
+  const d101Complete = s.d101.passed;
   const d102Complete = s.d102.passed;
 
   // Greeting
@@ -558,7 +558,7 @@ function updatePortal() {
 
 function confirmReset() {
   if (confirm('Reset all training progress? This will clear all module completions, exam scores, and certifications from this browser.')) {
-    ['ottimate_fund_state','ottimate_demo_state','ottimate_d102_state','ottimate_d102_bypass'].forEach(k => {
+    ['ottimate_fund_state','ottimate_demo_state','ottimate_d102_state'].forEach(k => {
       try { localStorage.removeItem(k); } catch(e) {}
     });
     location.reload();
