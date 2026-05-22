@@ -2822,8 +2822,12 @@ function submitExam() {
   const passed = pct >= 80;
   APP.examScore = score;
   APP.examPassed = passed;
-  if (passed) APP.certVerticals = APP.verticals.slice(); // snapshot verticals at time of passing
-  saveState();
+  if (passed && !examPassedPriorSession) {
+    // Stamp the exact date and freeze verticals at time of certification
+    APP.certDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    APP.certVerticals = APP.verticals.slice(); // snapshot verticals at time of passing
+  }
+  saveState(); // persists correct certDate and certVerticals
   // Only notify if this is a genuine first-time pass in this page session.
   // examPassedPriorSession is set only when a pass is restored from localStorage,
   // so a returning user who already passed won't re-trigger a notification,
