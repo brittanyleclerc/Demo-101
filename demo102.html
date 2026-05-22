@@ -615,6 +615,7 @@ const APP = {
   role: '',
   verticals: [],
   certDate: '',
+  certVerticals: [],  // snapshot of selected verticals at time of passing — never changes after cert
   modulesDone: new Set(),
   quizScores: {},
   quizState: {},
@@ -625,8 +626,62 @@ const APP = {
 let examAnswers = {};
 let examSubmitted = false;
 let comfortAnswer = null;
+let examPassedPriorSession = false; // true only when a pass is restored from localStorage (prevents duplicate notifications on reload)
 
 const VERTICAL_LABELS = { restaurants:'Restaurants', hospitality:'Hospitality', retail:'Retail', grocery:'Grocery', seniorliving:'Senior Living', healthcare:'Healthcare' };
+
+// ── Slack notification infrastructure ────────────────────────
+const MAKE_WEBHOOK_URL   = 'https://hook.us2.make.com/j94hm993xafxtl6rlokdhysp5gp6qge3';
+const NOTIF_QUEUE_KEY    = 'ottimate_notifications_queue';
+const NOTIF_MAX_ATTEMPTS = 5;
+const NOTIF_MIN_RETRY_MS = 2 * 60 * 1000;
+
+function _dispatchNotification(entry) {
+  try {
+    const params = new URLSearchParams({
+      name: entry.name, role: entry.role, dashboard: entry.dashboard,
+      score: entry.score, date: entry.date, verticals: entry.verticals
+    });
+    fetch(MAKE_WEBHOOK_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors', keepalive: true });
+  } catch(e) {}
+}
+
+function sendSlackCertification(dashboardName, score, total) {
+  try {
+    const pct = Math.round((score / total) * 100);
+    const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
+    const vertLabels = certVerts.map(v => VERTICAL_LABELS[v] || v).join(', ') || 'N/A';
+    const entry = {
+      id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      name: APP.name, role: APP.role, dashboard: dashboardName,
+      score: score + '/' + total + ' (' + pct + '%)',
+      date: APP.certDate || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      verticals: vertLabels, attempts: 1, lastAttempt: Date.now()
+    };
+    const queue = JSON.parse(localStorage.getItem(NOTIF_QUEUE_KEY) || '[]');
+    queue.push(entry);
+    localStorage.setItem(NOTIF_QUEUE_KEY, JSON.stringify(queue));
+    _dispatchNotification(entry);
+  } catch(e) {}
+}
+
+function retryPendingNotifications() {
+  try {
+    const queue = JSON.parse(localStorage.getItem(NOTIF_QUEUE_KEY) || '[]');
+    if (!queue.length) return;
+    const now = Date.now();
+    let changed = false;
+    queue.forEach(function(entry) {
+      if (entry.attempts >= NOTIF_MAX_ATTEMPTS) return;
+      if ((now - (entry.lastAttempt || 0)) < NOTIF_MIN_RETRY_MS) return;
+      entry.attempts++; entry.lastAttempt = now; changed = true;
+      _dispatchNotification(entry);
+    });
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const pruned = queue.filter(e => !(e.attempts >= NOTIF_MAX_ATTEMPTS && (now - (e.lastAttempt || 0)) > weekMs));
+    if (changed || pruned.length !== queue.length) localStorage.setItem(NOTIF_QUEUE_KEY, JSON.stringify(pruned));
+  } catch(e) {}
+}
 
 // ══════════════════════════════════════════════════════════
 // LOCALSTORAGE
@@ -635,7 +690,8 @@ function saveState() {
   try {
     localStorage.setItem('ottimate_d102_state', JSON.stringify({
       name: APP.name, role: APP.role, verticals: APP.verticals,
-      certDate: APP.certDate, modulesDone: Array.from(APP.modulesDone),
+      certDate: APP.certDate, certVerticals: APP.certVerticals,
+      modulesDone: Array.from(APP.modulesDone),
       quizScores: APP.quizScores, quizState: APP.quizState,
       examPassed: APP.examPassed, examScore: APP.examScore,
       examAnswers, examSubmitted
@@ -657,13 +713,14 @@ const EMAILJS_BYPASS = 'template_aizkufe';
 function sendEmailCertification() {
   try {
     const pct = Math.round((APP.examScore / 95) * 100);
-    const vertLabels = APP.verticals.map(v => VERTICAL_LABELS[v] || v).join(', ') || 'N/A';
+    const certVerts = (APP.certVerticals && APP.certVerticals.length > 0) ? APP.certVerticals : APP.verticals;
+    const vertLabels = certVerts.map(v => VERTICAL_LABELS[v] || v).join(', ') || 'N/A';
     emailjs.send(EMAILJS_SVC, EMAILJS_CERT, {
-      user_name:     APP.name,
-      user_role:     APP.role,
-      training_name: 'Demo 102 — Vendor Pay & Basic Reporting',
-      cert_score:    APP.examScore + '/95 (' + pct + '%)',
-      cert_date:     APP.certDate,
+      user_name:      APP.name,
+      user_role:      APP.role,
+      training_name:  'Demo 102 — Vendor Pay & Basic Reporting',
+      cert_score:     APP.examScore + '/95 (' + pct + '%)',
+      cert_date:      APP.certDate,
       user_verticals: vertLabels
     });
   } catch(e) {}
@@ -730,17 +787,19 @@ function initApp() {
       if (saved.modulesDone) saved.modulesDone.forEach(m => APP.modulesDone.add(m));
       if (saved.quizScores) APP.quizScores = saved.quizScores;
       if (saved.quizState) APP.quizState = saved.quizState;
-      if (saved.examPassed) APP.examPassed = saved.examPassed;
+      if (saved.examPassed) { APP.examPassed = saved.examPassed; examPassedPriorSession = true; }
       if (saved.examScore !== undefined) APP.examScore = saved.examScore;
       if (saved.examAnswers) examAnswers = saved.examAnswers;
       if (saved.examSubmitted) examSubmitted = saved.examSubmitted;
       if (saved.name && saved.role && saved.verticals && saved.verticals.length > 0) {
         APP.name = saved.name; APP.role = saved.role; APP.verticals = saved.verticals;
-        APP.certDate = saved.certDate || new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+        if (saved.certVerticals && saved.certVerticals.length > 0) APP.certVerticals = saved.certVerticals;
+        APP.certDate = saved.certDate || '';
         // Pre-fill name from d101 if blank
         if (!APP.name) {
           try { const d1 = JSON.parse(localStorage.getItem('ottimate_demo_state')||'{}'); if (d1.name) APP.name = d1.name; } catch(e){}
         }
+        setTimeout(retryPendingNotifications, 3000);
         setTimeout(() => {
           document.getElementById('screen-welcome').classList.remove('active');
           launchShell();
@@ -3332,10 +3391,19 @@ function submitExam() {
   APP.examScore = score;
   APP.examPassed = score >= 76;
   examSubmitted = true;
-  saveState();
-  if (APP.examPassed) {
+  if (APP.examPassed && !examPassedPriorSession) {
+    // Stamp the exact date and freeze verticals at time of certification
+    APP.certDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    APP.certVerticals = APP.verticals.slice();
+  }
+  saveState(); // persists correct certDate and certVerticals
+  if (APP.examPassed && !examPassedPriorSession) {
     updateSidebar('exam');
+    sendSlackCertification('Demo 102 — Vendor Pay & Basic Reporting', APP.examScore, 95);
     sendEmailCertification();
+    examPassedPriorSession = true; // prevent duplicate notifications if they revisit the results
+  } else if (APP.examPassed) {
+    updateSidebar('exam');
   }
   const wrap = document.getElementById('exam-wrap');
   if (wrap) renderExamResults(wrap);
