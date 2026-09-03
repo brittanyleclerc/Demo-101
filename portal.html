@@ -399,7 +399,34 @@ body {
 
   <!-- LEVEL 2 -->
   <div class="level-section">
-    <div class="level-label"><span class="level-badge coming">Level 2</span><span>Coming Soon</span></div>
+    <div class="level-label"><span class="level-badge">Level 2</span><span>Advanced Modules</span></div>
+    <div class="card-grid">
+
+      <!-- PO Match -->
+      <a class="track-card locked" id="card-pomatch" href="pomatch.html">
+        <div>
+          <div class="card-level-tag">Requires Demo 101 + Demo 102</div>
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+            <div class="card-icon">🧾</div>
+            <div class="card-title">PO Match</div>
+          </div>
+        </div>
+        <div class="card-desc">Purchase-order matching end to end — product mechanics, the Demonstrating-to-Win delivery method, discovery &amp; the capabilities menu, and the full demo walkthrough. 5 modules + final exam.</div>
+        <div class="card-modules">
+          <span class="card-module-tag">Overview &amp; Value</span>
+          <span class="card-module-tag">How It Works</span>
+          <span class="card-module-tag">Demonstrating to Win</span>
+          <span class="card-module-tag">Discovery &amp; Menu</span>
+          <span class="card-module-tag">Demo Walkthrough</span>
+        </div>
+        <div class="card-status">
+          <span class="status-badge locked-badge" id="status-pomatch">🔒 Complete Level 1 First</span>
+          <span class="card-cta" id="cta-pomatch">Locked</span>
+        </div>
+      </a>
+
+    </div>
+    <p style="font-size:0.8rem;color:var(--gray3);margin-top:0.75rem;">More Level 2 modules coming soon.</p>
   </div>
 
   <!-- LEVEL 3 -->
@@ -425,6 +452,7 @@ function getState() {
   const fund = read('ottimate_fundamentals_state');
   const d101 = read('ottimate_demo_state');
   const d102 = read('ottimate_d102_state');
+  const pm   = read('ottimate_pomatch_state');
 
   return {
     fund: {
@@ -450,6 +478,14 @@ function getState() {
       modules: d102 && d102.modulesDone ? d102.modulesDone.length : 0,
       score:   d102 && d102.examScore != null ? d102.examScore : null,
       certDate: d102 && d102.certDate || ''
+    },
+    pm: {
+      name:    pm && pm.name    || '',
+      started: !!(pm && (pm.modulesDone && pm.modulesDone.length > 0)),
+      passed:  !!(pm && pm.examPassed),
+      modules: pm && pm.modulesDone ? pm.modulesDone.length : 0,
+      score:   pm && pm.examScore != null ? pm.examScore : null,
+      certDate: pm && pm.certDate || ''
     }
   };
 }
@@ -526,6 +562,37 @@ function updatePortal() {
     }
   }
 
+  // ── PO Match card (Level 2 — locked until BOTH Demo 101 and Demo 102 are certified) ──
+  const level1Complete = s.d101.passed && s.d102.passed;
+  const cardPM = document.getElementById('card-pomatch');
+  const statusPM = document.getElementById('status-pomatch');
+  const ctaPM = document.getElementById('cta-pomatch');
+  if (cardPM) {
+    if (level1Complete) {
+      cardPM.classList.remove('locked');
+      if (s.pm.passed) {
+        cardPM.classList.add('certified');
+        statusPM.className = 'status-badge certified';
+        statusPM.textContent = '✓ Certified';
+        ctaPM.textContent = 'Review →';
+      } else if (s.pm.started) {
+        cardPM.classList.add('in-progress');
+        statusPM.className = 'status-badge in-progress';
+        statusPM.textContent = '↻ ' + s.pm.modules + '/5 modules done';
+        ctaPM.textContent = 'Continue →';
+      } else {
+        statusPM.className = 'status-badge not-started';
+        statusPM.textContent = 'Not Started';
+        ctaPM.textContent = 'Start →';
+      }
+    } else {
+      cardPM.classList.add('locked');
+      statusPM.className = 'status-badge locked-badge';
+      statusPM.textContent = '🔒 Complete Level 1 First';
+      ctaPM.textContent = 'Locked';
+    }
+  }
+
   // ── Certs earned section ──
   const earned = [];
   if (s.fund.passed) earned.push({
@@ -539,6 +606,10 @@ function updatePortal() {
   if (s.d102.passed) earned.push({
     icon: '🏅', title: 'Demo 102 Certified — Vendor Pay & Basic Reports',
     sub: s.d102.certDate ? ('Earned ' + s.d102.certDate) : 'Certified'
+  });
+  if (s.pm.passed) earned.push({
+    icon: '🎖️', title: 'PO Match Certified — Level 2',
+    sub: s.pm.certDate ? ('Earned ' + s.pm.certDate) : 'Certified'
   });
 
   const certSection = document.getElementById('cert-section');
@@ -558,7 +629,7 @@ function updatePortal() {
 
 function confirmReset() {
   if (confirm('Reset all training progress? This will clear all module completions, exam scores, and certifications from this browser.')) {
-    ['ottimate_fund_state','ottimate_demo_state','ottimate_d102_state'].forEach(k => {
+    ['ottimate_fundamentals_state','ottimate_demo_state','ottimate_d102_state','ottimate_pomatch_state'].forEach(k => {
       try { localStorage.removeItem(k); } catch(e) {}
     });
     location.reload();
